@@ -15,4 +15,7 @@ public interface RPprotocolInfo{
     byte SPAWN_ENTITY = 0x10;
     byte UNSPAWN_ENTITY = 0x11;
     byte RESPAWN = 0x12;
+    byte UPDATE_HEARTS = 0x13;
+    byte UPDATE_NAME = 0x14;
+    byte TRANSACTION_MANAGER = 0x15;
 }
