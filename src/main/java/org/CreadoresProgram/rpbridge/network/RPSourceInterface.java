@@ -8,6 +8,9 @@ import cn.nukkit.Player;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import spark.Service;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 import org.CreadoresProgram.rpbridge.network.protocol.RPpacket;
@@ -17,7 +20,10 @@ import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RPSourceInterface implements SourceInterface{
+import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.Unpooled;
+
+public class RPSourceInterface implements SourceInterface, Route {
     
     private static final String NO_REASON = "no reason";
     private static final String SHUTDOWN_REASON = "Shutdown";
@@ -98,4 +104,11 @@ public class RPSourceInterface implements SourceInterface{
     public void emergencyShutdown(){
         this.shutdown();
     }
+
+    @Override
+    public Object handle(Request request, Response response) throws Exception{}
+
+    private void processDatapacks(ByteBuf byteB){}
+
+    private Object handleWorld(Request request, Response response) throws Exception{}
 }
