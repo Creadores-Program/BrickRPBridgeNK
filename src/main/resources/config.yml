@@ -1,0 +1,18 @@
+# port where the server will open (not used if you use tunnel)
+port: 8080
+# password to log in, do not share it!
+password: "helloworld"
+# tunnel to redirect to https
+tunnel:
+    # enable tunnel, it is recommended to activate
+    enabled: true
+    #options: "serveo.net", "localhost.run", "pinggy.io"
+    provider: "serveo.net"
+    # if you're using a free service, enter any name.
+    # if you're using Pinggy Premium, enter your authentication token (login) here.
+    username: "brickrpbridgenk"
+    # service password (Almost no SSH tunnel uses it, but it's included in case they use their own VPS)
+    password: ""
+    # if you paid for a fixed subdomain from the provider, place it here.
+    # leave it blank "" to use random free subdomains.
+    subdomain: ""
