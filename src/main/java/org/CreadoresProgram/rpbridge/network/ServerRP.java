@@ -15,13 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerRP{
     private String rpId;
-    private String uuidPass;
+    private byte[] uuidPass;
+    private Level level;
     private List<ByteBuf> dataPacks = new ObjectArrayList<>();
     private Map<String, PlayerRP> players = new ConcurrentHashMap<>();
 
-    public ServerRP(String rpId, String uuidPass){
+    public ServerRP(String rpId, String uuidPass, Level level){
         this.rpId = rpId;
-        this.uuidPass = uuidPass;
+        this.uuidPass = uuidPass.getBytes();
+        this.level = level;
     }
     public String getRPId(){
         return this.rpId;
@@ -29,8 +31,11 @@ public class ServerRP{
     public List<ByteBuf> getRawDataPacks(){
         return this.dataPacks;
     }
-    public String getUuidPass(){
+    public byte[] getUuidPass(){
         return this.uuidPass;
+    }
+    public Level getLevel(){
+        return this.level;
     }
     public void sendPacket(RPpacket packet){
         try{

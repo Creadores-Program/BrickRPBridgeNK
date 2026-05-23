@@ -19,7 +19,10 @@ import org.CreadoresProgram.rpbridge.network.protocol.RPprotocolInfo;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.ByteBuf;
@@ -43,8 +46,10 @@ public class RPSourceInterface implements SourceInterface, Route {
     private boolean isRun;
     private Map<String, RPNetworkPlayerSession> sessions = new ConcurrentHashMap<>();
     private Service sparkServer;
+    protected byte[] password;
 
-    public RPSourceInterface(int port){
+    public RPSourceInterface(int port, String password){
+        this.password = password.getBytes(StandardCharsets.UTF_8);
         this.sparkServer = Service.ignate();
         this.sparkServer.port(port);
         String serverRPprUrl = "/ServerRPprotocol";
@@ -161,8 +166,8 @@ public class RPSourceInterface implements SourceInterface, Route {
         }
         ByteBuf packets = Unpooled.wrappedBuffer(bytesBody);
         try{
-            byte id = packets.readByte();
-            if(!this.isAuntenticated(request) && id != RPprotocolInfo.LOGIN_SERVER){
+            byte id = packets.getByte(packets.readerIndex());
+            if(!this.isAutenticated(request) && id != RPprotocolInfo.LOGIN_SERVER){
                 response.status(401);
                 return null;
             }
@@ -184,10 +189,44 @@ public class RPSourceInterface implements SourceInterface, Route {
         }
     }
 
-    private void processDatapacks(ByteBuf packets){}
+    private void processDatapacks(ByteBuf packets){
+        while(packets.readableBytes() > 0){
+            switch(packets.readByte()){
+                case RPprotocolInfo.LOGIN_SERVER:
+                    LoginServerPacket pk = new LoginServerPacket();
+                    pk.tryDecode(packets);
+                    pk.setBuffer(null);
+                    if(!this.autenticateServerRP(pk)){
+                        return;
+                    }
+                    break;
+                case RPprotocolInfo.CHAT:
+                    ChatPacket pk = new ChatPacket();
+                    pk.tryDecode(packets);
+                    pk.setBuffer(null);
+                    break;
+                default:
+                    Server.getInstance().getLogger().error("Unknown RP packet!");
+                    packets.skipBytes(packets.readableBytes());
+                    break;
+            }
+        }
+    }
+
+    private boolean autenticateServerRP(LoginServerPacket pk){
+        if(!MessageDigest.isEqual(pk.password.getBytes(StandardCharsets.UTF_8), this.password)){
+            return false;
+        }
+        LoginServerPacket res = new LoginServerPacket();
+        String uuidPass = UUID.nameUUIDFromBytes(this.password).toString() + UUID.nameUUIDFromBytes(pk.serverId.getBytes(StandardCharsets.UTF_8)).toString();
+        res.password = pk.password;
+        res.serverId = pk.serverId;
+        res.uuidPass = uuidPass;
+        //Create serverRP
+    }
 
     private Object handleWorld(Request request, Response response) throws Exception{
-        if(!this.isAuntenticated(request)){
+        if(!this.isAutenticated(request)){
             response.status(401);
             return null;
         }
@@ -195,7 +234,7 @@ public class RPSourceInterface implements SourceInterface, Route {
 
     private static String uuidPre = "UUID";
     private static String serverIdPrefix = "IdServer";
-    private boolean isAuntenticated(Request req){
+    private boolean isAutenticated(Request req){
         if(req.headers(uuidPre) == null || req.headers(uuidPre).isEmpty() || req.headers(serverIdPrefix) == null || req.headers(serverIdPrefix).isEmpty()){
             return false;
         }
@@ -203,6 +242,6 @@ public class RPSourceInterface implements SourceInterface, Route {
         if(server == null){
             return false;
         }
-        return server.getUuidPass().equals(req.headers(uuidPre));
+        return MessageDigest.isEqual(server.getUuidPass(), req.headers(uuidPre).getBytes(StandardCharsets.UTF_8));
     }
 }
