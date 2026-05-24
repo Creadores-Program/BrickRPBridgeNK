@@ -3,6 +3,7 @@ package org.CreadoresProgram.rpbridge.network;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
+import cn.nukkit.level.Level;
 import cn.nukkit.Player;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -13,8 +14,7 @@ import spark.Response;
 import spark.Route;
 
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
-import org.CreadoresProgram.rpbridge.network.protocol.RPpacket;
-import org.CreadoresProgram.rpbridge.network.protocol.RPprotocolInfo;
+import org.CreadoresProgram.rpbridge.network.protocol.*;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -171,12 +171,19 @@ public class RPSourceInterface implements SourceInterface, Route {
                 response.status(401);
                 return null;
             }
-            this.processDatapacks(packets);
+            try{
+                this.processDatapacks(packets);
+            }catch(Exception e){
+                Server.getInstance().getLogger().error("error in process datapacks in RP", e);
+                response.status(500);
+                return null;
+            }
             CompositeByteBuf composite = Unpooled.compositeBuffer();
             if(this.serversRP.get(request.headers(serverIdPrefix)) != null){
                 composite.addComponents(true, this.serversRP.get(request.headers(serverIdPrefix)).getRawDataPacks());
             }
             response.type(contTypVal);
+            response.status(200);
             try(ByteBufInputStream stream = new ByteBufInputStream(composite)){
                 return stream;
             }finally{
@@ -189,7 +196,7 @@ public class RPSourceInterface implements SourceInterface, Route {
         }
     }
 
-    private void processDatapacks(ByteBuf packets){
+    private void processDatapacks(ByteBuf packets) throws Exception{
         while(packets.readableBytes() > 0){
             switch(packets.readByte()){
                 case RPprotocolInfo.LOGIN_SERVER:
@@ -217,12 +224,23 @@ public class RPSourceInterface implements SourceInterface, Route {
         if(!MessageDigest.isEqual(pk.password.getBytes(StandardCharsets.UTF_8), this.password)){
             return false;
         }
+        if(!Server.getInstance().isLevelGenerated(pk.level)){
+            return false;
+        }
+        Level levelServer = Server.getInstance().getLevelByName(pk.level);
+        if(levelServer == null){
+            return false;
+        }
         LoginServerPacket res = new LoginServerPacket();
         String uuidPass = UUID.nameUUIDFromBytes(this.password).toString() + UUID.nameUUIDFromBytes(pk.serverId.getBytes(StandardCharsets.UTF_8)).toString();
         res.password = pk.password;
         res.serverId = pk.serverId;
+        res.level = pk.level;
         res.uuidPass = uuidPass;
-        //Create serverRP
+        ServerRP serverRp = new ServerRP(pk.serverId, uuidPass, levelServer);
+        serverRp.sendPacket(res);
+        this.serversRP.put(pk.serverId, serverRp);
+        return true;
     }
 
     private Object handleWorld(Request request, Response response) throws Exception{

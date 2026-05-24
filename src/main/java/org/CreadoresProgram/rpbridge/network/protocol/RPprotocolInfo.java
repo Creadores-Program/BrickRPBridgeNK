@@ -20,4 +20,5 @@ public interface RPprotocolInfo{
     byte TRANSACTION_MANAGER = 0x15;
     byte SET_PLAYER_ID = 0x16;
     byte DISCONNECT_PLAYER = 0x17;
+    byte TRANSFER_WORLD = 0x18;
 }
