@@ -1,6 +1,7 @@
 package org.CreadoresProgram.rpbridge.network.protocol;
 
 import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 
 public abstract class RPpacket implements Clonable{
@@ -22,6 +23,7 @@ public abstract class RPpacket implements Clonable{
         }
         this.buffer = buffer;
         this.decode();
+        this.buffer = null;
     }
 
     public abstract byte pid(){}

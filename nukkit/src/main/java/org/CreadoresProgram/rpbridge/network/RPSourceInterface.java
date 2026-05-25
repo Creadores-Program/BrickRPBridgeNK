@@ -53,13 +53,14 @@ public class RPSourceInterface implements SourceInterface, Route {
         this.sparkServer = Service.ignate();
         this.sparkServer.port(port);
         String serverRPprUrl = "/ServerRPprotocol";
+        final String resOK = "OK";
         this.sparkServer.post(serverRPprUrl, this);
         this.sparkServer.options(serverRPprUrl, (req, res)->{
             res.header(AccessCtrlAllOrin, AccessOrinVal);
             res.header(AccessCtrlAllMeth, AccessMethVal);
             res.header(AccessCtrlAllHead, AccessHeadVal);
             res.status(200);
-            return "OK";
+            return resOK;
         });
         String serverWorldRPprUrl = "/RqServerWorld";
         this.sparkServer.get(serverWorldRPprUrl, this::handleWorld);
@@ -68,7 +69,7 @@ public class RPSourceInterface implements SourceInterface, Route {
             res.header(AccessCtrlAllMeth, AccessMethWVal);
             res.header(AccessCtrlAllHead, AccessHeadVal);
             res.status(200);
-            return "OK";
+            return resOK;
         });
         this.sparkServer.before((req, res)->{
             res.header(AccessCtrlAllOrin, AccessOrinVal);
@@ -202,7 +203,6 @@ public class RPSourceInterface implements SourceInterface, Route {
                 case RPprotocolInfo.LOGIN_SERVER:
                     LoginServerPacket pk = new LoginServerPacket();
                     pk.tryDecode(packets);
-                    pk.setBuffer(null);
                     if(!this.autenticateServerRP(pk)){
                         return;
                     }
@@ -210,7 +210,6 @@ public class RPSourceInterface implements SourceInterface, Route {
                 case RPprotocolInfo.CHAT:
                     ChatPacket pk = new ChatPacket();
                     pk.tryDecode(packets);
-                    pk.setBuffer(null);
                     break;
                 default:
                     Server.getInstance().getLogger().error("Unknown RP packet!");

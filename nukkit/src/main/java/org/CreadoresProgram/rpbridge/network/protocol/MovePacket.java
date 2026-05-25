@@ -1,9 +1,10 @@
 package org.CreadoresProgram.rpbridge.network.protocol;
 
 import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 
-import cn.nukkit.network.protocol.MovePlayerPacket;
+import org.CreadoresProgram.rpbridge.utils.ByteBufProvider;
 
 public class MovePacket extends RPpacket{
     public static final byte NETWORK_ID = RPprotocolInfo.MOVE;
@@ -13,6 +14,7 @@ public class MovePacket extends RPpacket{
     public float yaw;
     public float pitch;
     public long eid;
+    public String playerIdRP;
 
     public byte pid(){
         return NETWORK_ID;
@@ -24,6 +26,7 @@ public class MovePacket extends RPpacket{
         this.yaw = this.getBuffer().readFloat();
         this.pitch = this.getBuffer().readFloat();
         this.eid = this.getBuffer().readLong();
+        this.playerIdRP = ByteBufProvider.readString(this.getBuffer());
     }
     public void encode() throws IOException {
         this.reset();
@@ -33,5 +36,6 @@ public class MovePacket extends RPpacket{
         this.getBuffer().writeFloat(this.yaw);
         this.getBuffer().writeFloat(this.pitch);
         this.getBuffer().writeLong(this.eid);
+        ByteBufProvider.writeString(this.getBuffer(), this.playerIdRP);
     }
 }

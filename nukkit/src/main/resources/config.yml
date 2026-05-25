@@ -1,7 +1,7 @@
 # port where the server will open (not used if you use tunnel)
 port: 8080
 # password to log in, do not share it!
-password: "helloworld"
+password: "helloworld123"
 # tunnel to redirect to https
 tunnel:
     # enable tunnel, it is recommended to activate
