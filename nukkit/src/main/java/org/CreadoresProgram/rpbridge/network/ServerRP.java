@@ -33,6 +33,17 @@ public class ServerRP{
     public List<ByteBuf> getRawDataPacks(){
         return this.dataPacks;
     }
+    public void clearRawDatapacks(){
+        synchronized(this.dataPacks){
+            this.dataPacks.clear();
+        }
+    }
+    public Map<String, PlayerRP> getPlayers(){
+        return this.players;
+    }
+    public void addPlayer(String rpId, PlayerRP player){
+        this.players.put(rpId, player);
+    }
     public byte[] getUuidPass(){
         return this.uuidPass;
     }

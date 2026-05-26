@@ -1,7 +1,7 @@
 package org.CreadoresProgram.rpbridge.network.protocol;
 
 public interface RPprotocolInfo{
-    byte VERSION = 0x01;// Version BrickRPBridgeNk Protocol
+    byte VERSION = 0x01;// Version BrickRPBridge Protocol
 
     byte LOGIN_SERVER = 0x01;
     byte CHAT = 0x02;

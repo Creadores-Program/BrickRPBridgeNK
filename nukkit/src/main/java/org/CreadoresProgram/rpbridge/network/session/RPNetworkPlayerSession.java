@@ -47,7 +47,7 @@ public class RPNetworkPlayerSession implements NetworkPlayerSession{
 
     @Override
     public Player getPlayer(){
-        return this.player;
+        return (Player) this.player;
     }
 
     @Override

@@ -172,16 +172,20 @@ public class RPSourceInterface implements SourceInterface, Route {
                 response.status(401);
                 return null;
             }
+            ServerRP serverRp = null;
+            if(request.headers(serverIdPrefix) != null && this.serversRP.get(request.headers(serverIdPrefix)) != null){
+                serverRp = this.serverRp.get(request.headers(serverIdPrefix));
+            }
             try{
-                this.processDatapacks(packets);
+                this.processDatapacks(packets, serverRp);
             }catch(Exception e){
                 Server.getInstance().getLogger().error("error in process datapacks in RP", e);
                 response.status(500);
                 return null;
             }
             CompositeByteBuf composite = Unpooled.compositeBuffer();
-            if(this.serversRP.get(request.headers(serverIdPrefix)) != null){
-                composite.addComponents(true, this.serversRP.get(request.headers(serverIdPrefix)).getRawDataPacks());
+            if(serverRp != null){
+                composite.addComponents(true, serverRp.getRawDataPacks());
             }
             response.type(contTypVal);
             response.status(200);
@@ -189,6 +193,9 @@ public class RPSourceInterface implements SourceInterface, Route {
                 return stream;
             }finally{
                 composite.release();
+                if(serverRp != null){
+                    serverRp.clearRawDatapacks();
+                }
             }
         }finally{
             if (packets.refCnt() > 0) {
@@ -197,7 +204,7 @@ public class RPSourceInterface implements SourceInterface, Route {
         }
     }
 
-    private void processDatapacks(ByteBuf packets) throws Exception{
+    private void processDatapacks(ByteBuf packets, ServerRP serverRp) throws Exception{
         while(packets.readableBytes() > 0){
             switch(packets.readByte()){
                 case RPprotocolInfo.LOGIN_SERVER:
@@ -210,6 +217,29 @@ public class RPSourceInterface implements SourceInterface, Route {
                 case RPprotocolInfo.CHAT:
                     ChatPacket pk = new ChatPacket();
                     pk.tryDecode(packets);
+                    PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
+                    if(play == null){
+                        break;
+                    }
+                    if(pk.type == ChatPacket.Type.CHAT){
+                        String chatMessage = pk.message;
+                        int breakLine = chatMessage.indexOf('\n');
+                        if(breakLine != -1){
+                            chatMessage = chatMessage.substring(0, breakLine);
+                        }
+                        play.chat(chatMessage);
+                        break;
+                    }
+                    //command
+                    break;
+                case RPprotocolInfo.MOVE:
+                    MovePacket pk = new MovePacket();
+                    pk.tryDecode(packets);
+                    PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
+                    if(play == null){
+                        break;
+                    }
+                    //move
                     break;
                 default:
                     Server.getInstance().getLogger().error("Unknown RP packet!");
