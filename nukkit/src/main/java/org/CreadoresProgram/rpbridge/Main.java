@@ -18,7 +18,7 @@ public class Main extends PluginBase{
     @Override
     public void onEnable(){
         this.getLogger().info("§eLoadig Server Http...");
-        this.getServer().getNetwork().registerInterface(new RPSourceInterface(this.getConfig().getInt("port"), this.getConfig().getString("password")));
+        this.getServer().getNetwork().registerInterface(new RPSourceInterface(this.getConfig().getInt("port"), this.getConfig().getString("password"), this.getServer()));
         this.getLogger().info("RPServerNK open in 0.0.0.0:" + this.getConfig().getInt("port"));
         if(this.getConfig().getBoolean("tunnel.enabled")){
             this.getLogger().info("§eLoading tunnel...");

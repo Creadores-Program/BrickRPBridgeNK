@@ -5,6 +5,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -46,11 +47,13 @@ public class RPSourceInterface implements SourceInterface, Route {
     private boolean isRun;
     private Map<String, RPNetworkPlayerSession> sessions = new ConcurrentHashMap<>();
     private Service sparkServer;
+    private Server server;
     protected byte[] password;
 
-    public RPSourceInterface(int port, String password){
+    public RPSourceInterface(int port, String password Server server){
         this.password = password.getBytes(StandardCharsets.UTF_8);
         this.sparkServer = Service.ignate();
+        this.server = server;
         this.sparkServer.port(port);
         String serverRPprUrl = "/ServerRPprotocol";
         final String resOK = "OK";
@@ -179,7 +182,7 @@ public class RPSourceInterface implements SourceInterface, Route {
             try{
                 this.processDatapacks(packets, serverRp);
             }catch(Exception e){
-                Server.getInstance().getLogger().error("error in process datapacks in RP", e);
+                this.server.getLogger().error("error in process datapacks in RP", e);
                 response.status(500);
                 return null;
             }
@@ -221,7 +224,13 @@ public class RPSourceInterface implements SourceInterface, Route {
                     if(play == null){
                         break;
                     }
-                    if(pk.type == ChatPacket.Type.CHAT){
+                    if (!play.spawned || !play.isAlive()) {
+                        break;
+                    }
+                    if(pk.type == ChatPacket.Type.RAW){
+                        if(pk.message.length() > 512){
+                            break;
+                        }
                         String chatMessage = pk.message;
                         int breakLine = chatMessage.indexOf('\n');
                         if(breakLine != -1){
@@ -230,7 +239,12 @@ public class RPSourceInterface implements SourceInterface, Route {
                         play.chat(chatMessage);
                         break;
                     }
-                    //command
+                    PlayerCommandPreprocessEvent playerCommandPreprocessEvent = new PlayerCommandPreprocessEvent(play, pk.message + ' ');
+                    this.server.getPluginManager().callEvent(playerCommandPreprocessEvent);
+                    if(playerCommandPreprocessEvent.isCancelled()){
+                        break;
+                    }
+                    this.server.dispatchCommand(playerCommandPreprocessEvent.getPlayer(), playerCommandPreprocessEvent.getMessage().substring(1));
                     break;
                 case RPprotocolInfo.MOVE:
                     MovePacket pk = new MovePacket();
@@ -242,7 +256,7 @@ public class RPSourceInterface implements SourceInterface, Route {
                     //move
                     break;
                 default:
-                    Server.getInstance().getLogger().error("Unknown RP packet!");
+                    this.server.getLogger().error("Unknown RP packet!");
                     packets.skipBytes(packets.readableBytes());
                     break;
             }
@@ -253,10 +267,10 @@ public class RPSourceInterface implements SourceInterface, Route {
         if(!MessageDigest.isEqual(pk.password.getBytes(StandardCharsets.UTF_8), this.password)){
             return false;
         }
-        if(!Server.getInstance().isLevelGenerated(pk.level)){
+        if(!this.server.isLevelGenerated(pk.level)){
             return false;
         }
-        Level levelServer = Server.getInstance().getLevelByName(pk.level);
+        Level levelServer = this.server.getLevelByName(pk.level);
         if(levelServer == null){
             return false;
         }
@@ -285,10 +299,10 @@ public class RPSourceInterface implements SourceInterface, Route {
         if(req.headers(uuidPre) == null || req.headers(uuidPre).isEmpty() || req.headers(serverIdPrefix) == null || req.headers(serverIdPrefix).isEmpty()){
             return false;
         }
-        ServerRP server = this.serversRP.get(req.headers(serverIdPrefix));
-        if(server == null){
+        ServerRP serverRp = this.serversRP.get(req.headers(serverIdPrefix));
+        if(serverRp == null){
             return false;
         }
-        return MessageDigest.isEqual(server.getUuidPass(), req.headers(uuidPre).getBytes(StandardCharsets.UTF_8));
+        return MessageDigest.isEqual(serverRp.getUuidPass(), req.headers(uuidPre).getBytes(StandardCharsets.UTF_8));
     }
 }
