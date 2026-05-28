@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 
 import org.CreadoresProgram.rpbridge.utils.ByteBufProvider;
+import org.CreadoresProgram.rpbridge.data.GameIds;
 
 public class LoginServerPacket extends RPpacket{
     public static final byte NETWORK_ID = RPprotocolInfo.LOGIN_SERVER;
@@ -12,6 +13,7 @@ public class LoginServerPacket extends RPpacket{
     public String password;
     public String serverId;
     public String level;
+    public String gameId = GameIds.MC;
     public String uuidPass;
     public byte version = RPprotocolInfo.VERSION;
 
@@ -23,6 +25,7 @@ public class LoginServerPacket extends RPpacket{
         this.password = ByteBufProvider.readString(this.getBuffer());
         this.serverId = ByteBufProvider.readString(this.getBuffer());
         this.level = ByteBufProvider.readString(this.getBuffer());
+        this.gameId = ByteBufProvider.readString(this.getBuffer());
         this.uuidPass = ByteBufProvider.readString(this.getBuffer());
         this.version = this.getBuffer().getByte();
     }
@@ -31,6 +34,7 @@ public class LoginServerPacket extends RPpacket{
         ByteBufProvider.writeString(this.getBuffer(), this.password);
         ByteBufProvider.writeString(this.getBuffer(), this.serverId);
         ByteBufProvider.writeString(this.getBuffer(), this.level);
+        ByteBufProvider.writeString(this.getBuffer(), this.gameId);
         ByteBufProvider.writeString(this.getBuffer(), this.uuidPass);
         this.getBuffer().writeByte(this.version);
     }

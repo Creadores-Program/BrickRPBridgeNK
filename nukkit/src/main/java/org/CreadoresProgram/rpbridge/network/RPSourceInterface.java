@@ -280,7 +280,7 @@ public class RPSourceInterface implements SourceInterface, Route {
         res.serverId = pk.serverId;
         res.level = pk.level;
         res.uuidPass = uuidPass;
-        ServerRP serverRp = new ServerRP(pk.serverId, uuidPass, levelServer);
+        ServerRP serverRp = new ServerRP(pk.serverId, uuidPass, levelServer, pk.gameId);
         serverRp.sendPacket(res);
         this.serversRP.put(pk.serverId, serverRp);
         return true;
