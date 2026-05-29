@@ -281,10 +281,7 @@ public class RPSourceInterface implements SourceInterface, Route {
     }
 
     private boolean autenticateServerRP(LoginServerPacket pk){
-        if(!MessageDigest.isEqual(pk.password.getBytes(StandardCharsets.UTF_8), this.password)){
-            return false;
-        }
-        if(!this.server.isLevelGenerated(pk.level)){
+        if((!MessageDigest.isEqual(pk.password.getBytes(StandardCharsets.UTF_8), this.password)) || (!this.server.isLevelGenerated(pk.level)) || this.serversRP.get(pk.serverId) != null){
             return false;
         }
         Level levelServer = this.server.getLevelByName(pk.level);
