@@ -94,19 +94,32 @@ public class PlayerRP extends Player{
     }
     @Override
     public void clearTitle() {
-        //clearTitle
+        TitlePacket pk = new TitlePacket();
+        pk.playerIdRP = this.rpId;
+        pk.type = TitlePacket.Type.CLEAR;
+        pk.message = "";
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public void resetTitleSettings() {}
     @Override
     public void setSubtitle(String subtitle) {
-        //setSubtitle
+        TitlePacket pk = new TitlePacket();
+        pk.playerIdRP = this.rpId;
+        pk.type = TitlePacket.Type.SUB_TITLE;
+        pk.message = subtitle;
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public void setTitleAnimationTimes(int fadein, int duration, int fadeout) {}
     @Override
     public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
-        //sendTitle
+        TitlePacket pk = new TitlePacket();
+        pk.playerIdRP = this.rpId;
+        pk.type = TitlePacket.Type.TITLE;
+        pk.message = title;
+        this.serverRp.sendPacket(pk);
+        this.setSubtitle(subtitle);
     }
     @Override
     public void sendActionBar(String title, int fadein, int duration, int fadeout) {}

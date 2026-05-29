@@ -23,6 +23,9 @@ public class ServerRP{
     private List<ByteBuf> dataPacks = new ObjectArrayList<>();
     private Map<String, PlayerRP> players = new ConcurrentHashMap<>();
     private String gameId;
+    private volatile long ping;
+    private volatile int timeOutTaskId;
+    private PingTask pingTask;
 
     public ServerRP(String rpId, String uuidPass, Level level, String gameId){
         this.rpId = rpId;
@@ -67,6 +70,36 @@ public class ServerRP{
             }
         }catch(Exception e){
             Server.getIntance().getLogger().error("Failed encode RPpacket: ", e);
+        }
+    }
+    public void setPing(long ping){
+        this.ping = ping;
+    }
+    public long getPing(){
+        return this.ping;
+    }
+    public void setTimeOutTaskId(int id){
+        this.timeOutTaskId = id;
+    }
+    public int getTimeOutTaskId(){
+        return this.timeOutTaskId;
+    }
+    public void setPingTask(PingTask pingTask){
+        this.pingTask = pingTask;
+    }
+    public PingTask getPingTask(){
+        return this.pingTask;
+    }
+    public static class PingTask extends Task{
+        private ServerRP serverRp;
+        private RPSourceInterface interfaz;
+        public PingTask(ServerRP serverRp, RPSourceInterface interfaz){
+            this.serverRp = serverRp;
+            this.interfaz = interfaz;
+        }
+        @Override
+        public void onRun(int currentTik){
+            //sacar jugadores y eliminar server
         }
     }
 }

@@ -3,6 +3,7 @@ package org.CreadoresProgram.rpbridge.network;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
+import cn.nukkit.scheduler.Task;
 import cn.nukkit.level.Level;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -49,8 +50,9 @@ public class RPSourceInterface implements SourceInterface, Route {
     private Service sparkServer;
     private Server server;
     protected byte[] password;
+    private static final int timeout = 1600;
 
-    public RPSourceInterface(int port, String password Server server){
+    public RPSourceInterface(int port, String password, Server server){
         this.password = password.getBytes(StandardCharsets.UTF_8);
         this.sparkServer = Service.ignate();
         this.server = server;
@@ -114,7 +116,7 @@ public class RPSourceInterface implements SourceInterface, Route {
 
     @Override
     public int getNetworkLatency(Player player){
-        return (int) player.getNetworkSession().getPing();
+        return (int) ((PlayerRP) player).getServerRP().getPing();
     }
 
     @Override
@@ -216,6 +218,9 @@ public class RPSourceInterface implements SourceInterface, Route {
                     if(!this.autenticateServerRP(pk)){
                         return;
                     }
+                    ServerRP servRp = this.serversRP.get(pk.serverId);
+                    servRp.setPingTask(new ServerRP.PingTask(servRp, this));
+                    servRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(servRp.getPingTask(), timeout).getTaskId());
                     break;
                 case RPprotocolInfo.CHAT:
                     ChatPacket pk = new ChatPacket();
@@ -254,6 +259,15 @@ public class RPSourceInterface implements SourceInterface, Route {
                         break;
                     }
                     //move
+                    break;
+                case RPprotocolInfo.PING:
+                    PingPacket pk = new PingPacket();
+                    pk.tryDecode(packets);
+                    serverRp.setPing(System.currentTimeMillis() - pk.timeMilis);
+                    PingPacket pkres = new PingPacket();
+                    serverRp.sendPacket(pkres);
+                    this.server.getScheduler().cancelTask(serverRp.getTimeOutTaskId());
+                    serverRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(servRp.getPingTask(), timeout).getTaskId());
                     break;
                 default:
                     this.server.getLogger().error("Unknown RP packet!");
