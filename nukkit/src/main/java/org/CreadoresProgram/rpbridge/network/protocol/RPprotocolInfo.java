@@ -15,7 +15,7 @@ public interface RPprotocolInfo{
     byte SPAWN_ENTITY = 0x10;
     byte UNSPAWN_ENTITY = 0x11;
     byte RESPAWN = 0x12;
-    byte UPDATE_HEARTS = 0x13;
+    byte UPDATE_HEALTH = 0x13;
     byte UPDATE_NAME = 0x14;
     byte TRANSACTION_MANAGER = 0x15;
     byte DISCONNECT_PLAYER = 0x17;
@@ -25,4 +25,5 @@ public interface RPprotocolInfo{
     byte EMOTE = 0x21;
     byte BOSSBAR = 0x22;
     byte TOAST = 0x23;
+    byte SET_MAX_HEALTH;
 }

@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
+import cn.nukkit.scheduler.Task;
 
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 import org.CreadoresProgram.rpbridge.data.GameIds;
@@ -99,7 +100,8 @@ public class ServerRP{
         }
         @Override
         public void onRun(int currentTik){
-            //sacar jugadores y eliminar server
+            this.serverRp.getPlayers().values().forEach((player)-> player.close());
+            this.interfaz.removeServerRP(this.serverRp.getRPId());
         }
     }
 }

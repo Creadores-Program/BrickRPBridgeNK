@@ -128,87 +128,27 @@ public class PlayerRP extends Player{
         //sendToast
     }
     @Override
-    public void close(TextContainer message, String reason, boolean notify) {
-        if (this.connected && !this.closed) {
-
-            this.connected = false;
-
-            this.resetCraftingGridType();
-            this.removeAllWindows(true);
-
-            if (this.fishing != null) {
-                this.stopFishing(false);
-            }
-
-            PlayerQuitEvent ev = null;
-            if (this.username != null && !this.username.isEmpty()) {
-                this.server.getPluginManager().callEvent(ev = new PlayerQuitEvent(this, message, true, reason));
-                if (this.loggedIn && ev.getAutoSave()) {
-                    this.save();
-                }
-            }
-
-            if (this.getUniqueId() != null) {
-                for (Player player : this.server.getOnlinePlayers().values()) {
-                    if (!player.canSee(this)) {
-                        player.showPlayer(this);
-                    }
-                }
-            }
-
-            this.hiddenPlayers.clear();
-
-            this.unloadChunks(false);
-
-            super.close();
-
-            this.interfaz.close(this, notify ? reason : "");
-
-            this.server.removeOnlinePlayer(this);
-
-            if (this.loggedIn) {
-                this.loggedIn = false;
-            }
-
-            if (ev != null && !Objects.equals(this.username, "") && this.spawned && !Objects.equals(ev.getQuitMessage().toString(), "")) {
-                this.server.broadcastMessage(ev.getQuitMessage());
-            }
-
-            this.server.getPluginManager().unsubscribeFromPermission(Server.BROADCAST_CHANNEL_USERS, this);
-            this.spawned = false;
-            this.server.getLogger().info(this.getServer().getLanguage().translateString("nukkit.player.logOut",
-                    TextFormat.AQUA + this.username + TextFormat.WHITE,
-                    this.getAddress(),
-                    String.valueOf(this.getPort()),
-                    this.getServer().getLanguage().translateString(reason)));
-
-            this.windows.clear();
-            this.hasSpawned.clear();
-
-            if (this.riding instanceof EntityRideable) {
-                this.riding.passengers.remove(this);
-            }
-
-            this.riding = null;
-        }
-
-        if (this.perm != null) {
-            this.perm.clearPermissions();
-            this.perm = null;
-        }
-
-        this.inventory = null;
-        this.chunk = null;
-        this.clientMovements = null;
-        this.resourceChunksRequested = null;
-
-        this.server.removePlayer(this);
-
-        if (this.loggedIn) {
-            this.server.getLogger().warning("Player is still logged in: " + this.username);
-            this.interfaz.close(this, notify ? reason : "");
-            this.server.removeOnlinePlayer(this);
-            this.loggedIn = false;
-        }
+    public void setHealth(float health){
+        super.setHealth(health);
+        //set to RP
+    }
+    @Override
+    public void setMaxHealth(int maxHealth) {
+        super.setMaxHealth(maxHealth);
+        //set to RP
+    }
+    @Override
+    public int showFormWindow(FormWindow window, int id) {
+        //showFormWindow
+    }
+    @Override
+    public long createBossBar(DummyBossBar dummyBossBar) {
+        //createBossBar
+    }
+    @Override
+    public void transfer(String hostName, int port) {}
+    @Override
+    public void closeFormWindows() {
+        //closeFormWindows
     }
 }

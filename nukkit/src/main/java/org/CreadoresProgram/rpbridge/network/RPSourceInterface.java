@@ -3,7 +3,6 @@ package org.CreadoresProgram.rpbridge.network;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
-import cn.nukkit.scheduler.Task;
 import cn.nukkit.level.Level;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -155,6 +154,10 @@ public class RPSourceInterface implements SourceInterface, Route {
     @Override
     public void emergencyShutdown(){
         this.shutdown();
+    }
+
+    public void removeServerRP(String rpId){
+        this.serversRP.remove(rpId);
     }
 
     private static String contTypPre = "Content-Type";
