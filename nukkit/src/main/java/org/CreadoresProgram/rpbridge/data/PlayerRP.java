@@ -4,6 +4,8 @@ import cn.nukkit.Player;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.form.window.FormWindow;
+import cn.nukkit.utils.DummyBossBar;
 
 import org.CreadoresProgram.rpbridge.network.ServerRP;
 import org.CreadoresProgram.rpbridge.network.RPSourceInterface;
@@ -139,7 +141,12 @@ public class PlayerRP extends Player{
     }
     @Override
     public int showFormWindow(FormWindow window, int id) {
-        //showFormWindow
+        FormPacket pk = new FormPacket();
+        pk.playerIdRP = this.rpId;
+        pk.id = id;
+        pk.close = false;
+        pk.window = window;
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public long createBossBar(DummyBossBar dummyBossBar) {
@@ -149,6 +156,10 @@ public class PlayerRP extends Player{
     public void transfer(String hostName, int port) {}
     @Override
     public void closeFormWindows() {
-        //closeFormWindows
+        FormPacket pk = new FormPacket();
+        pk.playerIdRP = this.rpId;
+        pk.id = 0;
+        pk.close = true;
+        this.serverRp.sendPacket(pk);
     }
 }

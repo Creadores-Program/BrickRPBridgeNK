@@ -13,9 +13,9 @@ public class TitlePacket extends RPpacket{
     public byte type;
 
     public static class Type{
-        public byte TITLE = 0x01;
-        public byte SUB_TITLE = 0x02;
-        public byte CLEAR = 0x03;
+        public static byte TITLE = 0x01;
+        public static byte SUB_TITLE = 0x02;
+        public static byte CLEAR = 0x03;
     }
 
     public byte pid(){
@@ -24,7 +24,7 @@ public class TitlePacket extends RPpacket{
     public void decode() throws IOException {
         this.message = ByteBufProvider.readString(this.getBuffer());
         this.playerIdRP = ByteBufProvider.readString(this.getBuffer());
-        this.type = this.getBuffer().getByte();
+        this.type = this.getBuffer().readByte();
     }
     public void encode() throws IOException {
         this.reset();

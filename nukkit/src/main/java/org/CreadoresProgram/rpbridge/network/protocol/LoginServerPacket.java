@@ -27,7 +27,7 @@ public class LoginServerPacket extends RPpacket{
         this.level = ByteBufProvider.readString(this.getBuffer());
         this.gameId = ByteBufProvider.readString(this.getBuffer());
         this.uuidPass = ByteBufProvider.readString(this.getBuffer());
-        this.version = this.getBuffer().getByte();
+        this.version = this.getBuffer().readByte();
     }
     public void encode() throws IOException {
         this.reset();
