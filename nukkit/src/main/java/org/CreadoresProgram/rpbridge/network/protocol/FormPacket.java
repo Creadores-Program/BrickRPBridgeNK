@@ -18,14 +18,20 @@ public class FormPacket extends RPpacket{
     public FormWindow window;
     public FormResponse response;
 
-    private static class Type {
+    protected static class Type {
         public static byte SIMPLE = 0x01;
         public static byte MODAL = 0x02;
         public static byte CUSTOM = 0x03;
     }
-    private static class TypeElements {
+    protected static class TypeElements {
         public static byte BUTTON = 0x01;
         public static byte HEADER = 0x02;
+        public static byte DIVIDER = 0x03;
+        public static byte DROPDOWN = 0x04;
+        public static byte INPUT = 0x05;
+        public static byte LABEL = 0x06;
+        public static byte SLIDER = 0x07;
+        public static byte STEP_SLIDER = 0x08;
     }
 
     public byte pid(){
@@ -58,10 +64,17 @@ public class FormPacket extends RPpacket{
                     ElementButton belem = (ElementButton) elem;
                     this.writeButton(belem);
                     continue;
-                }
-                if(elem instanceof ElementHeader){
+                }else if(elem instanceof ElementHeader){
                     ElementHeader helem = (ElementHeader) elem;
                     this.writeHeader(helem);
+                    continue;
+                }else if(elem instanceof ElementDivider){
+                    ElementDivider delem = (ElementDivider) elem;
+                    this.writeDivider(delem);
+                    continue;
+                }else if(elem instanceof ElementLabel){
+                    ElementLabel lelem = (ElementLabel) elem;
+                    this.writeLabel(lelem);
                 }
             }
             return;
@@ -94,13 +107,41 @@ public class FormPacket extends RPpacket{
             }
             this.getBuffer().writeShort(cwin.getElements().size());
             for(Element elem : cwin.getElements()){
-                //escribir elementos
+                if(elem instanceof ElementButton){
+                    ElementButton belem = (ElementButton) elem;
+                    this.writeButton(belem);
+                    continue;
+                }else if(elem instanceof ElementHeader){
+                    ElementHeader helem = (ElementHeader) elem;
+                    this.writeHeader(helem);
+                    continue;
+                }else if(elem instanceof ElementDivider){
+                    ElementDivider delem = (ElementDivider) elem;
+                    this.writeDivider(delem);
+                    continue;
+                }else if(elem instanceof ElementDropdown){
+                    ElementDropdown drelem = (ElementDropdown) elem;
+                    this.writeDropdown(drelem);
+                    continue;
+                }else if(elem instanceof ElementInput){
+                    ElementInput ielem = (ElementInput) elem;
+                    this.writeInput(ielem);
+                    continue;
+                }else if(elem instanceof ElementLabel){
+                    ElementLabel lelem = (ElementLabel) elem;
+                    this.writeLabel(lelem);
+                    continue;
+                }else if(elem instanceof ElementSlider){
+                    ElementSlider selem = (ElementSlider) elem;
+                    this.writeSlider(selem);
+                    continue;
+                }
             }
             return;
         }
         throw new RuntimeException("Window not compatible witch RP");
     }
-    private void writeButton(ElementButton button) throws IOException {
+    protected void writeButton(ElementButton button) throws IOException {
         this.getBuffer().writeByte(TypeElements.BUTTON);
         ByteBufProvider.writeString(this.getBuffer(), button.getText());
         if(button.getImage() == null){
@@ -115,7 +156,7 @@ public class FormPacket extends RPpacket{
         this.getBuffer().writeBoolean(true);
         ByteBufProvider.writeString(this.getBuffer(), img.getData());
     }
-    private void writeHeader(ElementHeader header) throws IOException {
+    protected void writeHeader(ElementHeader header) throws IOException {
         this.getBuffer().writeByte(TypeElements.HEADER);
         ByteBufProvider.writeString(this.getBuffer(), header.getText());
         if(header.getImage() == null){
@@ -129,5 +170,54 @@ public class FormPacket extends RPpacket{
         }
         this.getBuffer().writeBoolean(true);
         ByteBufProvider.writeString(this.getBuffer(), img.getData());
+    }
+    protected void writeDivider(ElementDivider divider){
+        this.getBuffer().writeByte(TypeElements.DIVIDER);
+        ByteBufProvider.writeString(divider.getText());
+    }
+    protected void writeDropdown(ElementDropdown dropdown){
+        this.getBuffer().writeByte(TypeElements.DROPDOWN);
+        ByteBufProvider.writeString(this.getBuffer(), dropdown.getText());
+        if(dropdown.getTooltip() == null){
+            this.getBuffer().writeBoolean(false);
+        }else{
+            this.getBuffer().writeBoolean(true);
+            ByteBufProvider.writeString(this.getBuffer(), dropdown.getTooltip());
+        }
+        this.getBuffer().writeInt(dropdown.getDefaultOptionIndex());
+        this.getBuffer().writeShort(dropdown.getOptions().size());
+        for(String option : dropdown.getOptions()){
+            ByteBufProvider.writeString(this.getBuffer(), option);
+        }
+    }
+    protected void writeInput(ElementInput input){
+        this.getBuffer().writeByte(TypeElements.INPUT);
+        ByteBufProvider.writeString(this.getBuffer(), input.getText());
+        ByteBufProvider.writeString(this.getBuffer(), input.getPlaceHolder());
+        ByteBufProvider.writeString(this.getBuffer(), input.getDefaultText());
+        if(input.getTooltip() == null){
+            this.getBuffer().writeBoolean(false);
+        }else{
+            this.getBuffer().writeBoolean(true);
+            ByteBufProvider.writeString(this.getBuffer(), input.getTooltip());
+        }
+    }
+    protected void writeLabel(ElementLabel label){
+        this.getBuffer().writeByte(TypeElements.LABEL);
+        ByteBufProvider.writeString(this.getBuffer(), label.getText());
+    }
+    protected void writeSlider(ElementSlider slider){
+        this.getBuffer().writeByte(TypeElements.SLIDER);
+        ByteBufProvider.writeString(this.getBuffer(), slider.getText());
+        this.getBuffer().writeFloat(slider.getMin());
+        this.getBuffer().writeFloat(slider.getMax());
+        this.getBuffer().writeInt(slider.getStep());
+        this.getBuffer().writeFloat(slider.getDefaultValue());
+        if(slider.getTooltip() == null){
+            this.getBuffer().writeBoolean(false);
+        }else{
+            this.getBuffer().writeBoolean(true);
+            ByteBufProvider.writeString(this.getBuffer(), slider.getTooltip());
+        }
     }
 }
