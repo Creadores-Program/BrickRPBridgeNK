@@ -5,6 +5,8 @@ import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.form.window.FormWindow;
+import cn.nukkit.form.response.FormResponseHandler;
+import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.utils.DummyBossBar;
 
 import org.CreadoresProgram.rpbridge.network.ServerRP;
@@ -141,12 +143,32 @@ public class PlayerRP extends Player{
     }
     @Override
     public int showFormWindow(FormWindow window, int id) {
+        if(formOpen) return -1;
         FormPacket pk = new FormPacket();
         pk.playerIdRP = this.rpId;
         pk.id = id;
         pk.close = false;
         pk.window = window;
+        this.formWindows.put(pk.id, window);
         this.serverRp.sendPacket(pk);
+        this.formOpen = true;
+        return id;
+    }
+    public void processFormResponse(int id, String response){
+        this.formOpen = false;
+        if (!this.spawned || !this.isAlive()) {
+            return;
+        }
+        if (!formWindows.containsKey(id)) {
+            return;
+        }
+        FormWindow window = formWindows.remove(id);
+        window.setResponse(response);
+        for (FormResponseHandler handler : window.getHandlers()) {
+            handler.handle(this, id);
+        }
+        PlayerFormRespondedEvent event = new PlayerFormRespondedEvent(this, id, window);
+        getServer().getPluginManager().callEvent(event);
     }
     @Override
     public long createBossBar(DummyBossBar dummyBossBar) {
@@ -156,6 +178,8 @@ public class PlayerRP extends Player{
     public void transfer(String hostName, int port) {}
     @Override
     public void closeFormWindows() {
+        this.formWindows.clear();
+        this.formOpen = false;
         FormPacket pk = new FormPacket();
         pk.playerIdRP = this.rpId;
         pk.id = 0;

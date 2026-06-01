@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.CreadoresProgram.rpbridge.utils.ByteBufProvider;
 
 import cn.nukkit.form.window.*;
-import cn.nukkit.form.response.FormResponse;
+import cn.nukkit.form.response.*;
 import cn.nukkit.form.element.*;
 
 public class FormPacket extends RPpacket{
@@ -16,7 +16,7 @@ public class FormPacket extends RPpacket{
     public boolean close;
     public String playerIdRP;
     public FormWindow window;
-    public FormResponse response;
+    public String response;
 
     protected static class Type {
         public static byte SIMPLE = 0x01;
@@ -32,6 +32,7 @@ public class FormPacket extends RPpacket{
         public static byte LABEL = 0x06;
         public static byte SLIDER = 0x07;
         public static byte STEP_SLIDER = 0x08;
+        public static byte TOGGLE = 0x09;
     }
 
     public byte pid(){
@@ -44,6 +45,8 @@ public class FormPacket extends RPpacket{
         if(this.close){ 
             return;
         }
+        this.getBuffer().readByte();
+        this.response = ByteBufProvider.readString(this.getBuffer());
     }
     public void encode() throws IOException {
         this.reset();
@@ -135,6 +138,13 @@ public class FormPacket extends RPpacket{
                     ElementSlider selem = (ElementSlider) elem;
                     this.writeSlider(selem);
                     continue;
+                }else if(elem instanceof ElementStepSlider){
+                    ElementStepSlider sselem = (ElementStepSlider) elem;
+                    this.writeStepSlider(sselem);
+                    continue;
+                }else if(elem instanceof ElementToggle){
+                    ElementToggle telem = (ElementToggle) elem;
+                    this.writeToggle(telem);
                 }
             }
             return;
@@ -193,14 +203,14 @@ public class FormPacket extends RPpacket{
     protected void writeInput(ElementInput input){
         this.getBuffer().writeByte(TypeElements.INPUT);
         ByteBufProvider.writeString(this.getBuffer(), input.getText());
-        ByteBufProvider.writeString(this.getBuffer(), input.getPlaceHolder());
-        ByteBufProvider.writeString(this.getBuffer(), input.getDefaultText());
         if(input.getTooltip() == null){
             this.getBuffer().writeBoolean(false);
         }else{
             this.getBuffer().writeBoolean(true);
             ByteBufProvider.writeString(this.getBuffer(), input.getTooltip());
         }
+        ByteBufProvider.writeString(this.getBuffer(), input.getDefaultText());
+        ByteBufProvider.writeString(this.getBuffer(), input.getPlaceHolder());
     }
     protected void writeLabel(ElementLabel label){
         this.getBuffer().writeByte(TypeElements.LABEL);
@@ -209,15 +219,41 @@ public class FormPacket extends RPpacket{
     protected void writeSlider(ElementSlider slider){
         this.getBuffer().writeByte(TypeElements.SLIDER);
         ByteBufProvider.writeString(this.getBuffer(), slider.getText());
-        this.getBuffer().writeFloat(slider.getMin());
-        this.getBuffer().writeFloat(slider.getMax());
-        this.getBuffer().writeInt(slider.getStep());
-        this.getBuffer().writeFloat(slider.getDefaultValue());
         if(slider.getTooltip() == null){
             this.getBuffer().writeBoolean(false);
         }else{
             this.getBuffer().writeBoolean(true);
             ByteBufProvider.writeString(this.getBuffer(), slider.getTooltip());
         }
+        this.getBuffer().writeFloat(slider.getDefaultValue());
+        this.getBuffer().writeFloat(slider.getMin());
+        this.getBuffer().writeFloat(slider.getMax());
+        this.getBuffer().writeInt(slider.getStep());
+    }
+    protected void writeStepSlider(ElementStepSlider stepSlider){
+        this.getBuffer().writeByte(TypeElements.STEP_SLIDER);
+        ByteBufProvider.writeString(this.getBuffer(), stepSlider.getText());
+        if(stepSlider.getTooltip() == null){
+            this.getBuffer().writeBoolean(false);
+        }else{
+            this.getBuffer().writeBoolean(true);
+            ByteBufProvider.writeString(this.getBuffer(), stepSlider.getTooltip());
+        }
+        this.getBuffer().writeInt(stepSlider.getDefaultOptionIndex());
+        this.getBuffer().writeShort(stepSlider.getSteps().size());
+        for(String step : stepSlider.getSteps()){
+            ByteBufProvider.writeString(this.getBuffer(), step);
+        }
+    }
+    protected void writeToggle(ElementToggle toggle){
+        this.getBuffer().writeByte(TypeElements.TOGGLE);
+        ByteBufProvider.writeString(toggle.getText());
+        if(toggle.getTooltip() == null){
+            this.getBuffer().writeBoolean(false);
+        }else{
+            this.getBuffer().writeBoolean(true);
+            ByteBufProvider.writeString(this.getBuffer(), toggle.getTooltip());
+        }
+        this.getBuffer().writeBoolean(toggle.isDefaultValue());
     }
 }
