@@ -13,10 +13,10 @@ public class ChatPacket extends RPpacket{
     public byte type;
 
     public static class Type{
-        public static byte RAW = 0x01;
-        public static byte COMMAND = 0x02;
-        public static byte POPUP = 0x03;
-        public static byte TIP = 0x04;
+        public static final byte RAW = 0x01;
+        public static final byte COMMAND = 0x02;
+        public static final byte POPUP = 0x03;
+        public static final byte TIP = 0x04;
     }
 
     public byte pid(){

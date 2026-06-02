@@ -13,9 +13,9 @@ public class TitlePacket extends RPpacket{
     public byte type;
 
     public static class Type{
-        public static byte TITLE = 0x01;
-        public static byte SUB_TITLE = 0x02;
-        public static byte CLEAR = 0x03;
+        public static final byte TITLE = 0x01;
+        public static final byte SUB_TITLE = 0x02;
+        public static final byte CLEAR = 0x03;
     }
 
     public byte pid(){

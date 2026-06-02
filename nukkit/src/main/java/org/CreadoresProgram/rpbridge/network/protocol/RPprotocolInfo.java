@@ -10,7 +10,7 @@ public interface RPprotocolInfo{
     byte TITLE = 0x05;
     byte PING = 0x06;
     byte INVENTORY = 0x07; //unused
-    byte INTERACT = 0x08; //Interact, Dramage
+    byte INTERACT = 0x08; //Interact, Damage
     byte BLOCK_UPDATE = 0x09;
     byte SPAWN_ENTITY = 0x10;
     byte UNSPAWN_ENTITY = 0x11;

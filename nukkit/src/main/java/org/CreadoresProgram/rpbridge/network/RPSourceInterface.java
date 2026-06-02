@@ -272,6 +272,12 @@ public class RPSourceInterface implements SourceInterface, Route {
                     this.server.getScheduler().cancelTask(serverRp.getTimeOutTaskId());
                     serverRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(servRp.getPingTask(), timeout).getTaskId());
                     break;
+                case RPprotocolInfo.INTERACT:
+                    InteractPacket pk = new InteractPacket();
+                    pk.tryDecode(packets);
+                    PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
+                    //damage or interact
+                    break;
                 default:
                     this.server.getLogger().error("Unknown RP packet!");
                     packets.skipBytes(packets.readableBytes());

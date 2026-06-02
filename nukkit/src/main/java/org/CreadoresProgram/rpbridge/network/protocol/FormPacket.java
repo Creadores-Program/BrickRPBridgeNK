@@ -19,20 +19,20 @@ public class FormPacket extends RPpacket{
     public String response;
 
     protected static class Type {
-        public static byte SIMPLE = 0x01;
-        public static byte MODAL = 0x02;
-        public static byte CUSTOM = 0x03;
+        public static final byte SIMPLE = 0x01;
+        public static final byte MODAL = 0x02;
+        public static final byte CUSTOM = 0x03;
     }
     protected static class TypeElements {
-        public static byte BUTTON = 0x01;
-        public static byte HEADER = 0x02;
-        public static byte DIVIDER = 0x03;
-        public static byte DROPDOWN = 0x04;
-        public static byte INPUT = 0x05;
-        public static byte LABEL = 0x06;
-        public static byte SLIDER = 0x07;
-        public static byte STEP_SLIDER = 0x08;
-        public static byte TOGGLE = 0x09;
+        public static final byte BUTTON = 0x01;
+        public static final byte HEADER = 0x02;
+        public static final byte DIVIDER = 0x03;
+        public static final byte DROPDOWN = 0x04;
+        public static final byte INPUT = 0x05;
+        public static final byte LABEL = 0x06;
+        public static final byte SLIDER = 0x07;
+        public static final byte STEP_SLIDER = 0x08;
+        public static final byte TOGGLE = 0x09;
     }
 
     public byte pid(){
