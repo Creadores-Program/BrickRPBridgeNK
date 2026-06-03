@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.CreadoresProgram.rpbridge.utils.ByteBufProvider;
 
-public class transactionManagerPacket extends RPpacket{
+public class TransactionManagerPacket extends RPpacket{
     public static final byte NETWORK_ID = RPprotocolInfo.TRANSACTION_MANAGER;
     public String playerIdRP;
     public String transactionId;
