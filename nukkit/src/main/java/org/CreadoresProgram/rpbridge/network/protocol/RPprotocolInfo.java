@@ -25,5 +25,5 @@ public interface RPprotocolInfo{
     byte EMOTE = 0x21;
     byte BOSSBAR = 0x22;
     byte TOAST = 0x23;
-    byte SET_MAX_HEALTH;
+    byte SET_MAX_HEALTH = 0x24;
 }
