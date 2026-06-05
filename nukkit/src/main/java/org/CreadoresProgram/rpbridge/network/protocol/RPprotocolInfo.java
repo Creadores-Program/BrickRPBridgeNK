@@ -18,12 +18,11 @@ public interface RPprotocolInfo{
     byte UPDATE_HEALTH = 0x13;
     byte UPDATE_NAME = 0x14;
     byte TRANSACTION_MANAGER = 0x15;
-    byte DISCONNECT_PLAYER = 0x17;
-    byte TRANSFER_WORLD = 0x18;
-    byte SET_TIME = 0x19;
-    byte SCOREBOARD = 0x20;
-    byte EMOTE = 0x21;
-    byte BOSSBAR = 0x22;
-    byte TOAST = 0x23;
-    byte SET_MAX_HEALTH = 0x24;
+    byte TRANSFER_WORLD = 0x16;
+    byte SET_TIME = 0x17;
+    byte SCOREBOARD = 0x18;
+    byte EMOTE = 0x19;
+    byte BOSSBAR = 0x20;
+    byte TOAST = 0x21;
+    byte SET_MAX_HEALTH = 0x22;
 }
