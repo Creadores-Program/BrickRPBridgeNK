@@ -129,7 +129,11 @@ public class PlayerRP extends Player{
     public void sendActionBar(String title, int fadein, int duration, int fadeout) {}
     @Override
     public void sendToast(String title, String content) {
-        //sendToast
+        ToastPacket pk = new ToastPacket();
+        pk.playerIdRP = this.rpId;
+        pk.title = title;
+        pk.content = content;
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public void setHealth(float health){
@@ -172,7 +176,37 @@ public class PlayerRP extends Player{
     }
     @Override
     public long createBossBar(DummyBossBar dummyBossBar) {
-        //createBossBar
+        this.dummyBossBars.put(dummyBossBar.getBossBarId(), dummyBossBar);
+        dummyBossBar.create();
+        BossBarPacket pk = new BossBarPacket();
+        pk.playerIdRP = this.rpId;
+        pk.bossbar = dummyBossBar;
+        pk.type = BossBarPacket.Type.CREATE;
+        this.serverRp.sendPacket(pk);
+        return dummyBossBar.getBossBarId();
+    }
+    @Override
+    public void updateBossBar(String text, int length, long bossBarId) {
+        super.updateBossBar(text, length, bossBarId);
+        if (!this.dummyBossBars.containsKey(bossBarId)) {
+            return;
+        }
+        DummyBossBar bossb = this.getDummyBossBar(bossBarId);
+        BossBarPacket pk = new BossBarPacket();
+        pk.playerIdRP = this.rpId;
+        pk.bossbar = bossb;
+        pk.type = BossBarPacket.Type.UPDATE;
+        this.serverRp.sendPacket(pk);
+    }
+    @Override
+    public void removeBossBar(long bossBarId) {
+        DummyBossBar bossb = this.getDummyBossBar(bossBarId);
+        super.removeBossBar(bossBarId);
+        BossBarPacket pk = new BossBarPacket();
+        pk.playerIdRP = this.rpId;
+        pk.bossbar = bossb;
+        pk.type = BossBarPacket.Type.REMOVE;
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public void transfer(String hostName, int port) {}
