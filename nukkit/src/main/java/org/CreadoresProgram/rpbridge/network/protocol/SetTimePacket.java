@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import org.CreadoresProgram.rpbridge.utils.ByteBufProvider;
 
-public class TransferWorldPacket extends RPpacket{
-    public static final byte NETWORK_ID = RPprotocolInfo.TRANSFER_WORLD;
+public class SetTimePacket extends RPpacket{
+    public static final byte NETWORK_ID = RPprotocolInfo.SET_TIME;
     public int time;
 
     public byte pid(){

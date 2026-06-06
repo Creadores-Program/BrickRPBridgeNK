@@ -20,8 +20,6 @@ public interface RPprotocolInfo{
     byte TRANSACTION_MANAGER = 0x15;
     byte TRANSFER_WORLD = 0x16;
     byte SET_TIME = 0x17;
-    byte SCOREBOARD = 0x18;
-    byte EMOTE = 0x19;
     byte BOSSBAR = 0x20;
     byte TOAST = 0x21;
     byte SET_MAX_HEALTH = 0x22;

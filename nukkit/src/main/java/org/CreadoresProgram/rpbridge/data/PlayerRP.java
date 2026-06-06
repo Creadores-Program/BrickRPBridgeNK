@@ -138,12 +138,18 @@ public class PlayerRP extends Player{
     @Override
     public void setHealth(float health){
         super.setHealth(health);
-        //set to RP
+        UpdateHealthPacket pk = new UpdateHealthPacket();
+        pk.playerIdRP = this.rpId;
+        pk.health = health;
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public void setMaxHealth(int maxHealth) {
         super.setMaxHealth(maxHealth);
-        //set to RP
+        SetMaxHealthPacket pk = new SetMaxHealthPacket();
+        pk.playerIdRP = this.rpId;
+        pk.health = maxHealth;
+        this.serverRp.sendPacket(pk);
     }
     @Override
     public int showFormWindow(FormWindow window, int id) {

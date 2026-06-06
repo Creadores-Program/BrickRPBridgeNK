@@ -21,7 +21,6 @@ public class RPNetworkPlayerSession implements NetworkPlayerSession{
 
     @Override
     public void sendPacket(DataPacket packet){
-        this.traducePacket(packet);
     }
     public void sendPacket(RPpacket packet){
         this.serverRP.sendPacket(packet);

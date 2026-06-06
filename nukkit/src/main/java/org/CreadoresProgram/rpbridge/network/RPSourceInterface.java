@@ -195,6 +195,9 @@ public class RPSourceInterface implements SourceInterface, Route {
             if(serverRp != null){
                 composite.addComponents(true, serverRp.getRawDataPacks());
             }
+            if(serverRp != null && serverRp.getIp() == null){
+                serverRp.setIp(request.ip());
+            }
             response.type(contTypVal);
             response.status(200);
             try(ByteBufInputStream stream = new ByteBufInputStream(composite)){
@@ -321,6 +324,9 @@ public class RPSourceInterface implements SourceInterface, Route {
         }
         ServerRP serverRp = this.serversRP.get(req.headers(serverIdPrefix));
         if(serverRp == null){
+            return false;
+        }
+        if(serverRp.getIp() != null && !(serverRp.getIp().equals(req.ip()))){
             return false;
         }
         return MessageDigest.isEqual(serverRp.getUuidPass(), req.headers(uuidPre).getBytes(StandardCharsets.UTF_8));

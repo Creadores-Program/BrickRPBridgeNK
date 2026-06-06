@@ -27,6 +27,7 @@ public class ServerRP{
     private volatile long ping;
     private volatile int timeOutTaskId;
     private PingTask pingTask;
+    private String ip;
 
     public ServerRP(String rpId, String uuidPass, Level level, String gameId){
         this.rpId = rpId;
@@ -42,6 +43,12 @@ public class ServerRP{
     }
     public String getRPId(){
         return this.rpId;
+    }
+    public void setIp(String ip){
+        this.ip = ip;
+    }
+    public String getIp(){
+        return this.ip;
     }
     public List<ByteBuf> getRawDataPacks(){
         return this.dataPacks;

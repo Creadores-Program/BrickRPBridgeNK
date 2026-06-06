@@ -13,7 +13,7 @@ public class BossBarPacket extends RPpacket{
     public static final byte NETWORK_ID = RPprotocolInfo.BOSSBAR;
     public String playerIdRP;
     public DummyBossBar bossbar;
-    public byte type;
+    public byte type = Type.CREATE;
     public static class Type {
         public static final byte CREATE = 0x01;
         public static final byte UPDATE = 0x02;
@@ -35,5 +35,6 @@ public class BossBarPacket extends RPpacket{
         this.getBuffer().writeFloat(this.bossbar.getLength());
         ByteBufProvider.writeString(this.getBuffer(), this.bossbar.getText());
         this.getBuffer().writeByte((byte) this.bossbar.getColor().ordinal());
+        this.getBuffer().writeByte(this.type);
     }
 }
