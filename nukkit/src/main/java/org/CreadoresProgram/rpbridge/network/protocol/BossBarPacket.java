@@ -31,7 +31,9 @@ public class BossBarPacket extends RPpacket{
     public void encode() throws IOException {
         this.reset();
         ByteBufProvider.writeString(this.getBuffer(), this.playerIdRP);
-        ByteBufProvider.writeString(this.getBuffer(), this.title);
-        ByteBufProvider.writeString(this.getBuffer(), this.content);
+        this.getBuffer().writeLong(this.bossbar.getBossBarId());
+        this.getBuffer().writeFloat(this.bossbar.getLength());
+        ByteBufProvider.writeString(this.getBuffer(), this.bossbar.getText());
+        this.getBuffer().writeByte((byte) this.bossbar.getColor().ordinal());
     }
 }
