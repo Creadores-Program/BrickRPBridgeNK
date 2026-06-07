@@ -4,6 +4,11 @@ import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
+import cn.nukkit.event.Listener;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.EventPriority;
+import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 
@@ -16,6 +21,7 @@ import spark.Route;
 
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 import org.CreadoresProgram.rpbridge.network.protocol.*;
+import org.CreadoresProgram.rpbridge.Main;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -30,7 +36,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.ByteBufInputStream;
 
-public class RPSourceInterface implements SourceInterface, Route {
+public class RPSourceInterface implements SourceInterface, Route, Listener {
     
     private static final String NO_REASON = "no reason";
     private static final String SHUTDOWN_REASON = "Shutdown";
@@ -79,6 +85,7 @@ public class RPSourceInterface implements SourceInterface, Route {
             res.header(AccessCtrlAllOrin, AccessOrinVal);
             res.header(AccessCtrlAllHead, AccessHeadVal);
         });
+        server.getPluginManager().registerEvents(this, Main.getInstance());
     }
 
     @Override
@@ -99,7 +106,7 @@ public class RPSourceInterface implements SourceInterface, Route {
     }
 
     public void putPacket(PlayerRP player, RPpacket packet){
-        RPNetworkPlayerSession ps = this.sessions.get(player.getRPId());
+        RPNetworkPlayerSession ps = this.sessions.get(player.getRpId());
         if(ps != null){
             ps.sendPacket(packet);
         }
@@ -128,7 +135,7 @@ public class RPSourceInterface implements SourceInterface, Route {
             return;
         }
         PlayerRP p = (PlayerRP) player;
-        RPNetworkPlayerSession ps = this.getSession(p.getRPId());
+        RPNetworkPlayerSession ps = this.getSession(p.getRpId());
         if(ps != null){
             ps.disconnect(reason);
         }
@@ -330,5 +337,37 @@ public class RPSourceInterface implements SourceInterface, Route {
             return false;
         }
         return MessageDigest.isEqual(serverRp.getUuidPass(), req.headers(uuidPre).getBytes(StandardCharsets.UTF_8));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event){
+        Player player = event.getPlayer();
+        Level level = player.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            if(serverRp.getLevel() != level){
+                continue;
+            }
+            if(player instanceof PlayerRP){
+                //despawn player or exit if
+                MovePacket pk = new MovePacket();
+                pk.x = player.getX();
+                pk.y = player.getY();
+                pk.z = player.getZ();
+                pk.yaw = player.getYaw();
+                pk.pitch = player.getPitch();
+                pk.playerIdRP = ((PlayerRP) player).getRpId();
+                pk.eid = player.getClientId();
+            }else{
+                //despawn player or exit if
+                MovePacket pk = new MovePacket();
+                pk.x = player.getX();
+                pk.y = player.getY();
+                pk.z = player.getZ();
+                pk.yaw = player.getYaw();
+                pk.pitch = player.getPitch();
+                pk.playerIdRP = player.getUniqueId().toString();
+                pk.eid = player.getClientId();
+            }
+        }
     }
 }

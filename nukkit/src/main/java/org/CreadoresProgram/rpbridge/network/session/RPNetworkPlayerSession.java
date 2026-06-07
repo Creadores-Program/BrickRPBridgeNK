@@ -39,7 +39,7 @@ public class RPNetworkPlayerSession implements NetworkPlayerSession{
     @Override
     public void disconnect(String reason){
         DisconnectPlayerPacket pk = new DisconnectPlayerPacket();
-        pk.playerId = this.player.getRPId();
+        pk.playerId = this.player.getRpId();
         pk.reason = reason;
         this.sendPacket(pk);
     }

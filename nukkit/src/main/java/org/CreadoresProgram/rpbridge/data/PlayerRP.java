@@ -38,6 +38,9 @@ public class PlayerRP extends Player{
     public boolean isPolytoriaPlayer(){
         return this.serverRp.isPolytoriaServer();
     }
+    public String getRpId(){
+        return this.rpId;
+    }
 
     @Override
     public NetworkPlayerSession getNetworkSession(){
