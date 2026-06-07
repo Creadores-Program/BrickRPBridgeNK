@@ -28,11 +28,16 @@ public class ServerRP{
     private volatile int timeOutTaskId;
     private PingTask pingTask;
     private String ip;
+    private int maxPosX, maxPosZ, minPosX, minPosZ;
 
     public ServerRP(String rpId, String uuidPass, Level level, String gameId){
         this.rpId = rpId;
         this.uuidPass = uuidPass.getBytes(StandardCharsets.UTF_8);
         this.level = level;
+        this.maxPosX = (int) Math.round(level.getProvider().getSpawn().getX() + 149);
+        this.maxPosZ = (int) Math.round(level.getProvider().getSpawn().getZ() + 149);
+        this.minPosX = (int) Math.round(level.getProvider(),getSpawn().getX() - 149);
+        this.minPosZ = (int) Math.round(level.getProvider(),getSpawn().getZ() - 149);
         this.gameId = gameId;
     }
     public boolean isRobloxServer(){
@@ -69,6 +74,18 @@ public class ServerRP{
     }
     public Level getLevel(){
         return this.level;
+    }
+    public int getMaxPosX(){
+        return this.maxPosX;
+    }
+    public int getMaxPosZ(){
+        return this.maxPosZ;
+    }
+    public int getMinPosX(){
+        return this.minPosX;
+    }
+    public int getMinPosZ(){
+        return this.minPosZ;
     }
     public void sendPacket(RPpacket packet){
         try{

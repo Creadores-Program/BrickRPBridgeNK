@@ -9,6 +9,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.PlayerMoveEvent;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 
@@ -339,16 +340,27 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
         return MessageDigest.isEqual(serverRp.getUuidPass(), req.headers(uuidPre).getBytes(StandardCharsets.UTF_8));
     }
 
+    private static final String exitReasonByMove = "You can't be in those orders!";
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event){
         Player player = event.getPlayer();
         Level level = player.getLevel();
         for(ServerRP serverRp : this.serversRP.values()){
             if(serverRp.getLevel() != level){
+                if(player instanceof PlayerRP && serverRp.getPlayers().get(((PlayerRP) player).getRpId()) != null){
+                    TranferWorldPacket pk = new TranferWorldPacket();
+                    pk.playerIdRP = ((PlayerRP) player).getRpId();
+                    pk.level = level.getName();
+                    serverRp.sendPacket(pk);
+                }
                 continue;
             }
             if(player instanceof PlayerRP){
-                //despawn player or exit if
+                if(player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
+                    player.close(exitReasonByMove);
+                    continue;
+                }
                 MovePacket pk = new MovePacket();
                 pk.x = player.getX();
                 pk.y = player.getY();
@@ -358,7 +370,64 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                 pk.playerIdRP = ((PlayerRP) player).getRpId();
                 pk.eid = player.getClientId();
             }else{
-                //despawn player or exit if
+                if(player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
+                    UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                    pk.eid = player.getClientId();
+                    pk.playerIdRP = player.getUniqueId().toString();
+                    serverRp.sendPacket(pk);
+                    continue;
+                }
+                MovePacket pk = new MovePacket();
+                pk.x = player.getX();
+                pk.y = player.getY();
+                pk.z = player.getZ();
+                pk.yaw = player.getYaw();
+                pk.pitch = player.getPitch();
+                pk.playerIdRP = player.getUniqueId().toString();
+                pk.eid = player.getClientId();
+            }
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerTp(PlayerTeleportEvent event){
+        Player player = event.getPlayer();
+        Level level = player.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            if(serverRp.getLevel() != level){
+                if(player instanceof PlayerRP && serverRp.getPlayers().get(((PlayerRP) player).getRpId()) != null){
+                    TranferWorldPacket pk = new TranferWorldPacket();
+                    pk.playerIdRP = ((PlayerRP) player).getRpId();
+                    pk.level = level.getName();
+                    serverRp.sendPacket(pk);
+                }else{
+                    UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                    pk.playerIdRP = player.getUniqueId().toString();
+                    pk.eid = player.getClientId();
+                    serverRp.sendPacket(pk);
+                }
+                continue;
+            }
+            if(player instanceof PlayerRP){
+                if(player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
+                    player.close(exitReasonByMove);
+                    continue;
+                }
+                MovePacket pk = new MovePacket();
+                pk.x = player.getX();
+                pk.y = player.getY();
+                pk.z = player.getZ();
+                pk.yaw = player.getYaw();
+                pk.pitch = player.getPitch();
+                pk.playerIdRP = ((PlayerRP) player).getRpId();
+                pk.eid = player.getClientId();
+            }else{
+                if(player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
+                    UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                    pk.eid = player.getClientId();
+                    pk.playerIdRP = player.getUniqueId().toString();
+                    serverRp.sendPacket(pk);
+                    continue;
+                }
                 MovePacket pk = new MovePacket();
                 pk.x = player.getX();
                 pk.y = player.getY();
