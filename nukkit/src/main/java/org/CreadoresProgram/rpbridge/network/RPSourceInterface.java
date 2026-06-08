@@ -399,7 +399,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.playerIdRP = ((PlayerRP) player).getRpId();
                     pk.level = level.getName();
                     serverRp.sendPacket(pk);
-                }else{
+                }else if(event.getFrom().getLevel() == serverRp.getLevel()){
                     UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
                     pk.playerIdRP = player.getUniqueId().toString();
                     pk.eid = player.getClientId();
