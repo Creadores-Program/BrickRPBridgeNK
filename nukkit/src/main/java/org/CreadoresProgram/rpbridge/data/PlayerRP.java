@@ -41,6 +41,17 @@ public class PlayerRP extends Player{
     public String getRpId(){
         return this.rpId;
     }
+    public void requestTransaction(String transactionId){
+        PlayerRPRequestTransactionEvent ev = new PlayerRPRequestTransactionEvent(this, transactionId);
+        this.server.getPluginManager().callEvent(ev);
+        if(ev.isCancelled()){
+            return;
+        }
+        TransactionManagerPacket pk = new TransactionManagerPacket();
+        pk.playerIdRP = this.rpId;
+        pk.transactionId = ev.getTransactionId();
+        this.serverRp.sendPacket(pk);
+    }
 
     @Override
     public NetworkPlayerSession getNetworkSession(){
