@@ -7,6 +7,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.response.FormResponseHandler;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.DummyBossBar;
 
 import org.CreadoresProgram.rpbridge.network.ServerRP;
@@ -14,11 +15,14 @@ import org.CreadoresProgram.rpbridge.network.RPSourceInterface;
 import org.CreadoresProgram.rpbridge.network.protocol.*;
 
 import java.net.InetSocketAddress;
+import java.util.Queue;
+import java.util.ArrayDeque;
 
 public class PlayerRP extends Player{
     protected ServerRP serverRp;
     protected final String rpId;
     protected final NetworkPlayerSession networkSessionRp;
+    protected Queue<Vector3> clientMovementsRP = new ArrayDeque<>();
     public PlayerRP(SourceInterface interfaz, String rpId, ServerRP serverRp){
         super(interfaz, new Random().nextLong(), new InetSocketAddress(0));
         this.networkSessionRp = ((RPSourceInterface) interfaz).getSession(rpId);
@@ -52,6 +56,12 @@ public class PlayerRP extends Player{
         pk.transactionId = ev.getTransactionId();
         this.serverRp.sendPacket(pk);
     }
+    public void setNewPosition(Vector3 v){
+        this.newPosition = v;
+    }
+    public Queue<Vector3> getClientMovements(){
+        return this.clientMovementsRP;
+    }
 
     @Override
     public NetworkPlayerSession getNetworkSession(){
@@ -74,6 +84,36 @@ public class PlayerRP extends Player{
     @Override
     public void forceDataPacket(DataPacket packet, Runnable callback) {}
 
+    @Override
+    public void sendPosition(Vector3 pos, double yaw, double pitch, int mode, Player[] targets) {
+        super.sendPosition(pos, yaw, pitch, mode, targets);
+        if (targets == null) {
+            this.clientMovementsRP.clear();
+        }
+    }
+    @Override
+    public void close(TextContainer message, String reason, boolean notify){
+        super.close(message, reason, notify);
+        this.clientMovementsRP = null;
+    }
+    @Override
+    public boolean onUpdate(int currentTick) {
+        if (!this.loggedIn) {
+            return false;
+        }
+
+        int tickDiff = currentTick - this.lastUpdate;
+
+        if (tickDiff <= 0) {
+            return true;
+        }
+        if (this.spawned) {
+            while (!this.clientMovementsRP.isEmpty()) {
+                this.handleMovement(this.clientMovementsRP.poll());
+            }
+        }
+        return super.onUpdate(currentTick);
+    }
     @Override
     public void sendMessage(String message, boolean isLocalized) {
         ChatPacket pk = new ChatPacket();

@@ -2,6 +2,7 @@ package org.CreadoresProgram.rpbridge.network;
 
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
@@ -10,6 +11,7 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 
@@ -272,7 +274,35 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     if(play == null){
                         break;
                     }
-                    //move
+                    Vector3 clientPosition = new Vector3(pk.x, pk.y, pk.z).substract(0, play.riding == null ? play.getBaseOffset() : play.riding.getMountedOffset(play).getY(), 0).asVector3();
+                    double distSqrt = clientPosition.distanceSquared(play);
+                    if (distSqrt > 100) { // Notice: This is the distance to player's position on server side. There are likely still unhandled previous movements when next move packet is received.
+                        play.sendPosition(play, pk.yaw, pk.pitch, MovePlayerPacket.MODE_RESET);
+                        server.getLogger().debug(play.getName() + ": move " + distSqrt + " > 100");
+                        return;
+                    }
+                    boolean revertMotion = false;
+                    if (!play.isAlive() || !play.spawned) {
+                        revertMotion = true;
+                    }
+                    if (revertMotion || clientPosition.distanceSquared(play) > 0.1) {
+                        play.sendPosition(play, pk.yaw, pk.pitch, MovePlayerPacket.MODE_RESET);
+                    } else {
+                        float yaw = pk.yaw % 360;
+                        float pitch = pk.pitch % 360;
+                        if (yaw < 0) {
+                            yaw += 360;
+                        }
+                        play.setRotation(yaw, pitch);
+                        play.setNewPosition(clientPosition);
+                        play.getClientMovements().offer(clientPosition);
+                    }
+                    break;
+                case RPprotocolInfo.FORM:
+                    FormPacket pk = new FormPacket();
+                    pk.tryDecode(packets);
+                    PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
+                    play.processFormResponse(pk.id, pk.response);
                     break;
                 case RPprotocolInfo.PING:
                     PingPacket pk = new PingPacket();
@@ -288,6 +318,8 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
                     //damage or interact
+                    break;
+                case RPprotocolInfo.RESPAWN:
                     break;
                 default:
                     this.server.getLogger().error("Unknown RP packet!");
