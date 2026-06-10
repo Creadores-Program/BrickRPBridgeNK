@@ -6,12 +6,15 @@ import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.item.Item;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 
@@ -317,7 +320,17 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     InteractPacket pk = new InteractPacket();
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
-                    //damage or interact
+                    Entity target = play.getLevel().getEntity(pk.eidTarjet);
+                    if (target == null) {
+                        break;
+                    }
+                    Item item = play.getInventory().getItemInHand();
+                    switch(pk.type){
+                        case InteractPacket.Type.INTERACT:
+                            break;
+                        case InteractPacket.Type.DAMAGE:
+                            break;
+                    }
                     break;
                 case RPprotocolInfo.RESPAWN:
                     break;
