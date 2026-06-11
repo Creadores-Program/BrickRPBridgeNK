@@ -5,6 +5,8 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Sound;
+import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.level.Location;
 import cn.nukkit.item.Item;
 import cn.nukkit.event.Listener;
@@ -13,6 +15,7 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
+import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.Player;
@@ -325,8 +328,45 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                         break;
                     }
                     Item item = play.getInventory().getItemInHand();
+                    Level level = ply.getLevel();
                     switch(pk.type){
                         case InteractPacket.Type.INTERACT:
+                            if (play.distanceSquared(target) > 256) { // TODO: Note entity scale
+                                server.getLogger().debug(play.getname() + ": target entity is too far away");
+                                break;
+                            }
+                            play.breakingBlock = null;
+
+                            play.setUsingItem(false);
+                            Vector3 clickPos = new Vector3(0, 0, 0);
+                            PlayerInteractEntityEvent playerInteractEntityEvent = new PlayerInteractEntityEvent(play, target, item, clickPos);
+                            if (play.isSpectator()) playerInteractEntityEvent.setCancelled();
+                            server.getPluginManager().callEvent(playerInteractEntityEvent);
+
+                            if (playerInteractEntityEvent.isCancelled()) {
+                                break;
+                            }
+                            if (target.onInteract(play, item, clickPos) && (play.isSurvival() || play.isAdventure())) {
+                                if (item.isTool()) {
+                                    if (item.useOn(target) && item.getDamage() >= item.getMaxDurability()) {
+                                        level.addSound(play, Sound.RANDOM_BREAK);
+                                        level.addParticle(new ItemBreakParticle(play, item));
+                                        item = Item.get(Item.AIR);
+                                    }
+                                } else {
+                                    if (item.count > 1) {
+                                        item.count--;
+                                    } else {
+                                        item = Item.get(Item.AIR);
+                                    }
+                                }
+
+                                if (item.getId() == 0 || play.getInventory().getItemInHandFast().getId() == item.getId()) {
+                                    play.getInventory().setItemInHand(item);
+                                } else if (Nukkit.DEBUG > 1) {
+                                    server.getLogger().debug("Tried to set item " + item.getId() + " but " + play.getName() + " had item " + play.getInventory().getItemInHandFast().getId() + " in their hand slot");
+                                }
+                            }
                             break;
                         case InteractPacket.Type.DAMAGE:
                             break;
