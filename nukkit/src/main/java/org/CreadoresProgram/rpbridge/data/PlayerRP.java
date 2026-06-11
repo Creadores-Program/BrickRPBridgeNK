@@ -62,6 +62,9 @@ public class PlayerRP extends Player{
     public Queue<Vector3> getClientMovements(){
         return this.clientMovementsRP;
     }
+    public Vector3 getSleeping(){
+        return this.sleeping;
+    }
 
     @Override
     public NetworkPlayerSession getNetworkSession(){

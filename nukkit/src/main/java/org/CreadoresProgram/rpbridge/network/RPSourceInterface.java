@@ -12,10 +12,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.player.PlayerMoveEvent;
-import cn.nukkit.event.player.PlayerTeleportEvent;
-import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
-import cn.nukkit.event.player.PlayerInteractEntityEvent;
+import cn.nukkit.event.player.*;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.Player;
@@ -369,6 +366,142 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                             }
                             break;
                         case InteractPacket.Type.DAMAGE:
+                            if (target.getId() == play.getId()) {
+                                play.kick(PlayerKickEvent.Reason.INVALID_PVP, "Tried to attack invalid player");
+                                break;
+                            }
+
+                            if (!play.canInteractEntity(target, play.isCreative() ? 64 : 25)) { // 8 : 5
+                                break;
+                            } else if (target instanceof Player) {
+                                if ((((Player) target).gamemode & 0x01) > 0) {
+                                    break;
+                                } else if (!this.server.pvpEnabled) {
+                                    break;
+                                }
+                            }
+
+                            play.breakingBlock = null;
+
+                            play.setUsingItem(false);
+
+                            if (play.getSleeping() != null) {
+                                server.getLogger().debug(play.getName() + ": USE_ITEM_ON_ENTITY_ACTION_ATTACK while sleeping");
+                                break;
+                            }
+                            /*if (play.inventoryOpen) {
+                                server.getLogger().debug(play.getName() + ": USE_ITEM_ON_ENTITY_ACTION_ATTACK while viewing inventory");
+                                break;
+                            }*/
+
+                            play.setShieldBlockingDelay(5);
+
+                            if (server.attackStopSprint) {
+                                play.setSprinting(false);
+                            }
+
+                            Enchantment[] enchantments = item.getEnchantments();
+
+                            float itemDamage = item.getAttackDamage();
+                            for (Enchantment enchantment : enchantments) {
+                                itemDamage += enchantment.getDamageBonus(target);
+                            }
+
+                            Map<DamageModifier, Float> damage = new EnumMap<>(DamageModifier.class);
+                            damage.put(DamageModifier.BASE, itemDamage);
+
+                            float knockBack = 0.3f;
+                            Enchantment knockBackEnchantment = item.getEnchantment(Enchantment.ID_KNOCKBACK);
+                            if (knockBackEnchantment != null) {
+                                knockBack += knockBackEnchantment.getLevel() * 0.1f;
+                            }
+
+                            EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(play, target, DamageCause.ENTITY_ATTACK, damage, knockBack, enchantments);
+                            level.addLevelSoundEvent(play, LevelSoundEventPacket.SOUND_BLOCK_SMITHING_TABLE_USE);
+
+                            boolean smashAttack = false;
+
+                            if (item instanceof ItemMace && !play.isGliding()) {
+                                double height = play.highestPosition - target.y;
+
+                                if (height >= 1.5) {
+                                    smashAttack = true;
+
+                                    int smashDamage = 6; // normal damage
+                                    for (int i = 0; i <= height; i++) {
+                                        if (i < 3) { // 4 extra damage for each of the first 3 blocks fallen
+                                            smashDamage += 4;
+                                        } else if (i < 8) { // 2 extra damage for each of the next 5 blocks fallen
+                                            smashDamage += 2;
+                                        } else { // 1 extra damage for each block fallen after that
+                                            smashDamage += 1;
+                                        }
+                                    }
+
+                                    int density = item.getEnchantmentLevel(EnchantmentMace.ID_DENSITY);
+                                    if (density > 0) { // 0.5 per block fallen per level of enchantment
+                                        smashDamage += (int) (0.5 * height * density);
+                                    }
+
+                                    entityDamageByEntityEvent.setDamage(smashDamage);
+                                }
+                            }
+
+                            if (play.isSpectator()) {
+                                entityDamageByEntityEvent.setCancelled();
+                            }
+                            if ((target instanceof Player) && !level.getGameRules().getBoolean(GameRule.PVP)) {
+                                entityDamageByEntityEvent.setCancelled();
+                            }
+
+                            if (!target.attack(entityDamageByEntityEvent)) {
+                                if (item.isTool() && !play.isCreative()) {
+                                    play.needSendHeldItem = true;
+                                }
+                                break;
+                            }
+
+                            for (Enchantment enchantment : item.getEnchantments()) {
+                                enchantment.doPostAttack(play, target);
+                            }
+
+                            if (smashAttack) {
+                                int windBurst = item.getEnchantmentLevel(Enchantment.ID_WIND_BURST);
+                                if (windBurst > 0) {
+                                    Vector3 knockback = new Vector3(play.motionX, play.motionY, play.motionZ);
+
+                                    knockback.x /= 2d;
+                                    knockback.y /= 2d;
+                                    knockback.z /= 2d;
+
+                                    knockback.y += windBurst == 1 ? 1.2 : windBurst == 2 ? 1.75 : (1.15 + 0.35 * windBurst);
+
+                                    play.resetFallDistance();
+
+                                    play.setMotion(knockback);
+
+                                    play.riptideTicks = 40 * windBurst;
+
+                                    target.getLevel().addParticle(new GenericParticle(target, Particle.TYPE_WIND_EXPLOSION));
+                                }
+
+                                target.getLevel().addLevelEvent(target, LevelEventPacket.EVENT_PARTICLE_SMASH_ATTACK_GROUND_DUST);
+                                target.getLevel().addLevelSoundEvent(target, LevelSoundEventPacket.SOUND_MACE_SMASH_AIR);
+                            }
+
+                            if (item.isTool() && !play.isCreative()) {
+                                if (item.useOn(target) && item.getDamage() >= item.getMaxDurability()) {
+                                    level.addSound(play, Sound.RANDOM_BREAK);
+                                    level.addParticle(new ItemBreakParticle(play, item));
+                                    play.getInventory().clear(play.getInventory().getHeldItemIndex(), true);
+                                } else {
+                                    if (item.getId() == 0 || play.getInventory().getItemInHandFast().getId() == item.getId()) {
+                                        play.getInventory().setItemInHand(item);
+                                    } else if (Nukkit.DEBUG > 1) {
+                                        server.getLogger().debug("Tried to set item " + item.getId() + " but " + play.getName() + " had item " + play.getInventory().getItemInHandFast().getId() + " in their hand slot");
+                                    }
+                                }
+                            }
                             break;
                     }
                     break;
