@@ -17,7 +17,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.*;
-import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageModifier;
 import cn.nukkit.math.Vector3;
@@ -705,4 +705,14 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             serverRp.sendPacket(pk);
         }
     }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntitySpawn(EntitySpawnEvent event){}
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDespawn(EntityDespawnEvent event){}
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDeath(EntityDeathEvent event){}
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityTp(EntityTeleportEvent event){}
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void oEntityMotion(EntityMotionEvent event){}
 }
