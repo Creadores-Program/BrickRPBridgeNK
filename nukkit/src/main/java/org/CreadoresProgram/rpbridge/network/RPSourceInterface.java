@@ -686,6 +686,22 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             pk.x = player.getX();
             pk.y = player.getY();
             pk.z = player.getZ();
+            serverRp.sendPacket(pk);
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerQuit(PlayerQuitEvent event){
+        Player player = event.getPlayer();
+        Level level = player.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+            pk.eid = player.getClientId();
+            if(player instanceof PlayerRP){
+                pk.playerIdRP = ((PlayerRP) player).getRpId();
+            }else{
+                pk.playerIdRP = player.getUniqueId().toString();
+            }
+            serverRp.sendPacket(pk);
         }
     }
 }
