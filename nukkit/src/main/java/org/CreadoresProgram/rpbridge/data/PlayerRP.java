@@ -249,6 +249,14 @@ public class PlayerRP extends Player{
         return dummyBossBar.getBossBarId();
     }
     @Override
+    public void setDisplayName(String displayName) {
+        UpdateNamePacket pk = new UpdateNamePacket();
+        pk.eid = this.getClientId();
+        pk.playerIdRP = this.rpId;
+        pk.name = displayName;
+        super.setDisplayName(displayName);
+    }
+    @Override
     public void updateBossBar(String text, int length, long bossBarId) {
         super.updateBossBar(text, length, bossBarId);
         if (!this.dummyBossBars.containsKey(bossBarId)) {

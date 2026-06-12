@@ -69,6 +69,9 @@ public class ServerRP{
     public void addPlayer(String rpId, PlayerRP player){
         this.players.put(rpId, player);
     }
+    public String getGameId(){
+        return this.gameId;
+    }
     public byte[] getUuidPass(){
         return this.uuidPass;
     }

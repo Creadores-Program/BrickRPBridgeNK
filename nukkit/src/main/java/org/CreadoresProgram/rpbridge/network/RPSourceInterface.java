@@ -3,16 +3,23 @@ package org.CreadoresProgram.rpbridge.network;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.MovePlayerPacket;
+import cn.nukkit.network.protocol.LevelSoundEventPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.level.Location;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemMace;
+import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.item.enchantment.mace.EnchantmentMace;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
+import cn.nukkit.event.entity.EntityDamageEvent.DamageModifier;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.Player;
@@ -25,7 +32,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import org.CreadoresProgram.rpbridge.data.PlayerRP;
+import org.CreadoresProgram.rpbridge.data.*;
 import org.CreadoresProgram.rpbridge.network.protocol.*;
 import org.CreadoresProgram.rpbridge.Main;
 
@@ -655,6 +662,30 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                 pk.playerIdRP = player.getUniqueId().toString();
                 pk.eid = player.getClientId();
             }
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent event){
+        Player player = event.getPlayer();
+        Level level = player.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            if(level != serverRp.getLevel() || player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
+                continue;
+            }
+            SpawnEntityPacket pk = new SpawnEntityPacket();
+            pk.eid = player.getClientId();
+            pk.rid = 0;
+            if(player instanceof PlayerRP){
+                pk.playerIdRP = ((PlayerRP) player).getRpId();
+                pk.gameId = ((PlayerRP) player).getServerRP().getGameId();
+            }else{
+                pk.playerIdRP = player.getUniqueId().toString();
+                pk.gameId = GameIds.MC;
+            }
+            pk.displayName = player.getDisplayName();
+            pk.x = player.getX();
+            pk.y = player.getY();
+            pk.z = player.getZ();
         }
     }
 }
