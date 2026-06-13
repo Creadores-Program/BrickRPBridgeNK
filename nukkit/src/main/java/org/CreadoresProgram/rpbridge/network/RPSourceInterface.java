@@ -7,8 +7,8 @@ import cn.nukkit.network.protocol.LevelSoundEventPacket;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
-import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemMace;
 import cn.nukkit.item.enchantment.Enchantment;
@@ -572,6 +572,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
     public void onPlayerMove(PlayerMoveEvent event){
         Player player = event.getPlayer();
         Level level = player.getLevel();
+        Location from = event.getFrom();
         for(ServerRP serverRp : this.serversRP.values()){
             if(serverRp.getLevel() != level){
                 if(player instanceof PlayerRP && serverRp.getPlayers().get(((PlayerRP) player).getRpId()) != null){
@@ -586,6 +587,18 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                 if(player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
                     player.close(exitReasonByMove);
                     continue;
+                }
+                if(from.getLevel() != serverRp.getLevel() || from.getX() > serverRp.getMaxPosX() || from.getZ() > serverRp.getMaxPosZ() || from.getX() < serverRp.getMinPosX() || from.getZ() < serverRp.getMinPosZ()){
+                    SpawnEntityPacket spk = new SpawnEntityPacket();
+                    spk.eid = player.getClientId();
+                    spk.rid = 0;
+                    spk.playerIdRP = ((PlayerRP) player).getRpId();
+                    spk.gameId = ((PlayerRP) player).getServerRP().getGameId();
+                    spk.displayName = player.getDisplayName();
+                    spk.x = player.getX();
+                    spk.y = player.getY();
+                    spk.z = player.getZ();
+                    serverRp.sendPacket(pk);
                 }
                 MovePacket pk = new MovePacket();
                 pk.x = player.getX();
@@ -602,6 +615,18 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.playerIdRP = player.getUniqueId().toString();
                     serverRp.sendPacket(pk);
                     continue;
+                }
+                if(from.getLevel() != serverRp.getLevel() || from.getX() > serverRp.getMaxPosX() || from.getZ() > serverRp.getMaxPosZ() || from.getX() < serverRp.getMinPosX() || from.getZ() < serverRp.getMinPosZ()){
+                    SpawnEntityPacket spk = new SpawnEntityPacket();
+                    spk.eid = player.getClientId();
+                    spk.rid = 0;
+                    spk.playerIdRP = player.getUniqueId().toString();
+                    spk.gameId = GameIds.MC;
+                    spk.displayName = player.getDisplayName();
+                    spk.x = player.getX();
+                    spk.y = player.getY();
+                    spk.z = player.getZ();
+                    serverRp.sendPacket(pk);
                 }
                 MovePacket pk = new MovePacket();
                 pk.x = player.getX();
@@ -618,6 +643,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
     public void onPlayerTp(PlayerTeleportEvent event){
         Player player = event.getPlayer();
         Level level = player.getLevel();
+        Location from = event.getFrom();
         for(ServerRP serverRp : this.serversRP.values()){
             if(serverRp.getLevel() != level){
                 if(player instanceof PlayerRP && serverRp.getPlayers().get(((PlayerRP) player).getRpId()) != null){
@@ -625,7 +651,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.playerIdRP = ((PlayerRP) player).getRpId();
                     pk.level = level.getName();
                     serverRp.sendPacket(pk);
-                }else if(event.getFrom().getLevel() == serverRp.getLevel()){
+                }else if(from.getLevel() == serverRp.getLevel()){
                     UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
                     pk.playerIdRP = player.getUniqueId().toString();
                     pk.eid = player.getClientId();
@@ -637,6 +663,18 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                 if(player.getX() > serverRp.getMaxPosX() || player.getZ() > serverRp.getMaxPosZ() || player.getX() < serverRp.getMinPosX() || player.getZ() < serverRp.getMinPosZ()){
                     player.close(exitReasonByMove);
                     continue;
+                }
+                if(from.getLevel() != serverRp.getLevel() || from.getX() > serverRp.getMaxPosX() || from.getZ() > serverRp.getMaxPosZ() || from.getX() < serverRp.getMinPosX() || from.getZ() < serverRp.getMinPosZ()){
+                    SpawnEntityPacket spk = new SpawnEntityPacket();
+                    spk.eid = player.getClientId();
+                    spk.rid = 0;
+                    spk.playerIdRP = ((PlayerRP) player).getRpId();
+                    spk.gameId = ((PlayerRP) player).getServerRP().getGameId();
+                    spk.displayName = player.getDisplayName();
+                    spk.x = player.getX();
+                    spk.y = player.getY();
+                    spk.z = player.getZ();
+                    serverRp.sendPacket(pk);
                 }
                 MovePacket pk = new MovePacket();
                 pk.x = player.getX();
@@ -653,6 +691,18 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.playerIdRP = player.getUniqueId().toString();
                     serverRp.sendPacket(pk);
                     continue;
+                }
+                if(from.getLevel() != serverRp.getLevel() || from.getX() > serverRp.getMaxPosX() || from.getZ() > serverRp.getMaxPosZ() || from.getX() < serverRp.getMinPosX() || from.getZ() < serverRp.getMinPosZ()){
+                    SpawnEntityPacket spk = new SpawnEntityPacket();
+                    spk.eid = player.getClientId();
+                    spk.rid = 0;
+                    spk.playerIdRP = player.getUniqueId().toString();
+                    spk.gameId = GameIds.MC;
+                    spk.displayName = player.getDisplayName();
+                    spk.x = player.getX();
+                    spk.y = player.getY();
+                    spk.z = player.getZ();
+                    serverRp.sendPacket(pk);
                 }
                 MovePacket pk = new MovePacket();
                 pk.x = player.getX();
@@ -706,13 +756,138 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
         }
     }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntitySpawn(EntitySpawnEvent event){}
+    public void onEntitySpawn(EntitySpawnEvent event){
+        if(event.getEntity() instanceof Player){
+            return;
+        }
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            if(level != serverRp.getLevel() || entity.getX() > serverRp.getMaxPosX() || entity.getZ() > serverRp.getMaxPosZ() || entity.getX() < serverRp.getMinPosX() || entity.getZ() < serverRp.getMinPosZ()){
+                continue;
+            }
+            SpawnEntityPacket pk = new SpawnEntityPacket();
+            pk.eid = entity.getId();
+            pk.rid = entity.getNetworkId();
+            pk.playerIdRP = "";
+            pk.displayName = entity.hasCustomName() ? entity.getNameTag() : "";
+            pk.x = entity.getX();
+            pk.y = entity.getY();
+            pk.z = entity.getZ();
+            serverRp.sendPacket(pk);
+        }
+    }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDespawn(EntityDespawnEvent event){}
+    public void onEntityDespawn(EntityDespawnEvent event){
+        if(event.getEntity() instanceof Player){
+            return;
+        }
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+            pk.eid = player.getId();
+            pk.playerIdRP = "";
+            serverRp.sendPacket(pk);
+        }
+    }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDeath(EntityDeathEvent event){}
+    public void onEntityDeath(EntityDeathEvent event){
+        if(event.getEntity() instanceof Player){
+            return;
+        }
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+            pk.eid = player.getId();
+            pk.playerIdRP = "";
+            serverRp.sendPacket(pk);
+        }
+    }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityTp(EntityTeleportEvent event){}
+    public void onEntityTp(EntityTeleportEvent event){
+        if(event.getEntity() instanceof Player){
+            return;
+        }
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        Location from = event.getFrom();
+        for(ServerRP serverRp : this.serversRP.values()){
+            if(serverRp.getLevel() != level){
+                if(from.getLevel() == serverRp.getLevel()){
+                    UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                    pk.playerIdRP = "";
+                    pk.eid = entity.getId();
+                    serverRp.sendPacket(pk);
+                }
+                continue;
+            }
+            if(entity.getX() > serverRp.getMaxPosX() || entity.getZ() > serverRp.getMaxPosZ() || entity.getX() < serverRp.getMinPosX() || entity.getZ() < serverRp.getMinPosZ()){
+                UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                pk.eid = entity.getId();
+                pk.playerIdRP = "";
+                serverRp.sendPacket(pk);
+                continue;
+            }
+            if(from.getLevel() != serverRp.getLevel() || from.getX() > serverRp.getMaxPosX() || from.getZ() > serverRp.getMaxPosZ() || from.getX() < serverRp.getMinPosX() || from.getZ() < serverRp.getMinPosZ()){
+                SpawnEntityPacket spk = new SpawnEntityPacket();
+                spk.eid = entity.getId();
+                spk.rid = entity.getNetworkId();
+                spk.playerIdRP = "";
+                spk.displayName = entity.hasCustomName() ? entity.getNameTag() : "";
+                spk.x = entity.getX();
+                spk.y = entity.getY();
+                spk.z = entity.getZ();
+                serverRp.sendPacket(pk);
+            }
+            MovePacket pk = new MovePacket();
+            pk.x = entity.getX();
+            pk.y = entity.getY();
+            pk.z = entity.getZ();
+            pk.yaw = entity.getYaw();
+            pk.pitch = entity.getPitch();
+            pk.playerIdRP = "";
+            pk.eid = entity.getId();
+        }
+    }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void oEntityMotion(EntityMotionEvent event){}
+    public void oEntityMotion(EntityMotionEvent event){
+        if(event.getEntity() instanceof Player){
+            return;
+        }
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        for(ServerRP serverRp : this.serversRP.values()){
+            if(serverRp.getLevel() != level){
+                continue;
+            }
+            if(entity.getX() > serverRp.getMaxPosX() || entity.getZ() > serverRp.getMaxPosZ() || entity.getX() < serverRp.getMinPosX() || entity.getZ() < serverRp.getMinPosZ()){
+                UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                pk.eid = entity.getId();
+                pk.playerIdRP = "";
+                serverRp.sendPacket(pk);
+                continue;
+            }
+            /*if(from.getLevel() != serverRp.getLevel() || from.getX() > serverRp.getMaxPosX() || from.getZ() > serverRp.getMaxPosZ() || from.getX() < serverRp.getMinPosX() || from.getZ() < serverRp.getMinPosZ()){
+                SpawnEntityPacket spk = new SpawnEntityPacket();
+                spk.eid = entity.getId();
+                spk.rid = entity.getNetworkId();
+                spk.playerIdRP = "";
+                spk.displayName = entity.hasCustomName() ? entity.getNameTag() : "";
+                spk.x = entity.getX();
+                spk.y = entity.getY();
+                spk.z = entity.getZ();
+                serverRp.sendPacket(pk);
+            }*/
+            MovePacket pk = new MovePacket();
+            pk.x = entity.getX();
+            pk.y = entity.getY();
+            pk.z = entity.getZ();
+            pk.yaw = entity.getYaw();
+            pk.pitch = entity.getPitch();
+            pk.playerIdRP = "";
+            pk.eid = entity.getId();
+        }
+    }
 }
