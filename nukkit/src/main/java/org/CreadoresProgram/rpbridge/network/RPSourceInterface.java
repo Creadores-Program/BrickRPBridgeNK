@@ -511,9 +511,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                                 }
                             }
                             break;
-                    }
-                    break;
-                case RPprotocolInfo.RESPAWN:
+                        }
                     break;
                 default:
                     this.server.getLogger().error("Unknown RP packet!");

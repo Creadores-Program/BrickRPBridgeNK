@@ -14,13 +14,12 @@ public interface RPprotocolInfo{
     byte BLOCK_UPDATE = 0x09;
     byte SPAWN_ENTITY = 0x10;
     byte UNSPAWN_ENTITY = 0x11;
-    byte RESPAWN = 0x12;
-    byte UPDATE_HEALTH = 0x13;
-    byte UPDATE_NAME = 0x14;
-    byte TRANSACTION_MANAGER = 0x15;
-    byte TRANSFER_WORLD = 0x16;
-    byte SET_TIME = 0x17;
-    byte BOSSBAR = 0x20;
-    byte TOAST = 0x21;
-    byte SET_MAX_HEALTH = 0x22;
+    byte UPDATE_HEALTH = 0x12;
+    byte UPDATE_NAME = 0x13;
+    byte TRANSACTION_MANAGER = 0x14;
+    byte TRANSFER_WORLD = 0x15;
+    byte SET_TIME = 0x16;
+    byte BOSSBAR = 0x17;
+    byte TOAST = 0x18;
+    byte SET_MAX_HEALTH = 0x19;
 }

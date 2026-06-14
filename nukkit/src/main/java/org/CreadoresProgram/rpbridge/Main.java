@@ -3,6 +3,7 @@ package org.CreadoresProgram.rpbridge;
 import cn.nukkit.plugin.PluginBase;
 
 import org.CreadoresProgram.rpbridge.network.RPSourceInterface;
+import org.CreadoresProgram.rpbridge.event.fastrespawn.FRListener;
 
 public class Main extends PluginBase{
     private static Main instance;
@@ -20,6 +21,9 @@ public class Main extends PluginBase{
         this.getLogger().info("§eLoadig Server Http...");
         this.getServer().getNetwork().registerInterface(new RPSourceInterface(this.getConfig().getInt("port"), this.getConfig().getString("password"), this.getServer()));
         this.getLogger().info("RPServerNK open in 0.0.0.0:" + this.getConfig().getInt("port"));
+        if(this.getServer().getPluginManager().getPlugin("FastRespawn") == null){
+            this.getServer().getPluginManager().registerEvents(new FRListener(), this);
+        }
         if(this.getConfig().getBoolean("tunnel.enabled")){
             this.getLogger().info("§eLoading tunnel...");
             //Tunnel manager
