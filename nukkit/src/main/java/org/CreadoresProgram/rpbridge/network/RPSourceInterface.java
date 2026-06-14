@@ -541,11 +541,18 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
         return true;
     }
 
+    private static final String levelHead = "Level";
+
     private Object handleWorld(Request request, Response response) throws Exception{
         if(!this.isAutenticated(request)){
             response.status(401);
             return null;
         }
+        byte[] data = RPBlocksUtils.getWorldData(this.server.getLevelByName(request.headers(levelHead)));
+        response.status(200);
+        response.type(contTypVal);
+        response.header("Content-Encoding", "gzip");
+        return data;
     }
 
     private static String uuidPre = "UUID";

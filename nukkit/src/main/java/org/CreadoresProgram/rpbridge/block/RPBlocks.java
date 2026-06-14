@@ -58,4 +58,21 @@ public class RPBlocks{
     public static final byte SLAB = 50;
     public static final byte LAVA = 51;
     public static final byte WATER = 52;
+    //ligth
+    public static final byte LIGTH_WHITE = 60;
+    public static final byte LIGTH_ORANGE = 61;
+    public static final byte LIGTH_MAGENTA = 62;
+    public static final byte LIGTH_LIGHT_BLUE = 63;
+    public static final byte LIGTH_YELLOW = 64;
+    public static final byte LIGTH_LIME = 65;
+    public static final byte LIGTH_PINK = 66;
+    public static final byte LIGTH_GREY = 67;
+    public static final byte LIGTH_LIGHT_GRAY = 68;
+    public static final byte LIGTH_CYAN = 69;
+    public static final byte LIGTH_DWELLING = 70;
+    public static final byte LIGTH_BLUE = 71;
+    public static final byte LIGTH_BROWN = 72;
+    public static final byte LIGTH_GREEN = 73;
+    public static final byte LIGTH_RED = 74;
+    public static final byte LIGTH_BLACK = 75;
 }
