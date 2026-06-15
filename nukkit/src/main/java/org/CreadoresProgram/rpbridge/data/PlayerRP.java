@@ -23,11 +23,18 @@ public class PlayerRP extends Player{
     protected final String rpId;
     protected final NetworkPlayerSession networkSessionRp;
     protected Queue<Vector3> clientMovementsRP = new ArrayDeque<>();
+    public static Skin defaulSkinR;
+    public static Skin defaulSkinP;
     public PlayerRP(SourceInterface interfaz, String rpId, ServerRP serverRp){
         super(interfaz, new Random().nextLong(), new InetSocketAddress(0));
         this.networkSessionRp = ((RPSourceInterface) interfaz).getSession(rpId);
         this.serverRp = serverRp;
         this.rpId = rpId;
+        if(this.serverRp.isRobloxServer()){
+            this.skin = defaulSkinR;
+        }else{
+            this.skin = defaulSkinP;
+        }
     }
 
     public ServerRP getServerRP(){
