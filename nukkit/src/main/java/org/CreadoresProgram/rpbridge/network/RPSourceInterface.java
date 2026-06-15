@@ -14,9 +14,11 @@ import cn.nukkit.item.ItemMace;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.item.enchantment.mace.EnchantmentMace;
 import cn.nukkit.event.Listener;
+import cn.nukkit.event.HandlerList;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.block.*;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageModifier;
@@ -35,6 +37,8 @@ import spark.Route;
 
 import org.CreadoresProgram.rpbridge.data.*;
 import org.CreadoresProgram.rpbridge.network.protocol.*;
+import org.CreadoresProgram.rpbridge.block.RPBlocks;
+import org.CreadoresProgram.rpbridge.block.utils.RPBlocksUtils;
 import org.CreadoresProgram.rpbridge.Main;
 
 import java.net.InetSocketAddress;
@@ -70,6 +74,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
     private Server server;
     protected byte[] password;
     private static final int timeout = 1600;
+    private int idTimeTask;
 
     public RPSourceInterface(int port, String password, Server server){
         this.password = password.getBytes(StandardCharsets.UTF_8);
@@ -100,6 +105,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             res.header(AccessCtrlAllHead, AccessHeadVal);
         });
         server.getPluginManager().registerEvents(this, Main.getInstance());
+        this.idTimeTask = server.getScheduler().scheduleDelayedRepeatingTask(new SetTimeTask(), 20, 1200).getTaskId();
     }
 
     @Override
@@ -170,6 +176,8 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             this.sparkServer.stop();
             this.sparkServer.awaitStop();
         }
+        this.server.getScheduler().cancelTask(this.idTimeTask);
+        HandlerList.unregisterAll(this);
         this.isRun = false;
     }
     @Override
@@ -857,7 +865,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
         }
     }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void oEntityMotion(EntityMotionEvent event){
+    public void onEntityMotion(EntityMotionEvent event){
         if(event.getEntity() instanceof Player){
             return;
         }
@@ -893,6 +901,76 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             pk.pitch = entity.getPitch();
             pk.playerIdRP = "";
             pk.eid = entity.getId();
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent event){
+        Block block = event.getBlock();
+        Level level = block.getLevel();
+        for(ServerRP serverRp : this.serversRP){
+            if(level != serverRp.getLevel() || block.getX() > serverRp.getMaxPosX() || block.getZ() > serverRp.getMaxPosZ() || block.getX() < serverRp.getMinPosX() || block.getZ() < serverRp.getMinPosZ() || block.getY() < 0 || block.getY() > 250){
+                continue;
+            }
+            BlockUpdatePacket pk = new BlockUpdatePacket();
+            pk.id = RPBlocks.AIR;
+            pk.x = block.getX();
+            pk.y = block.getY();
+            pk.z = block.getZ();
+            serverRp.sendPacket(pk);
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event){
+        Block block = event.getBlock();
+        Level level = block.getLevel();
+        for(ServerRP serverRp : this.serversRP){
+            if(level != serverRp.getLevel() || block.getX() > serverRp.getMaxPosX() || block.getZ() > serverRp.getMaxPosZ() || block.getX() < serverRp.getMinPosX() || block.getZ() < serverRp.getMinPosZ() || block.getY() < 0 || block.getY() > 250){
+                continue;
+            }
+            BlockUpdatePacket pk = new BlockUpdatePacket();
+            pk.id = RPBlocksUtils.traduceBlock(block);
+            pk.x = block.getX();
+            pk.y = block.getY();
+            pk.z = block.getZ();
+            serverRp.sendPacket(pk);
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockUpdate(BlockUpdateEvent event){
+        Block block = event.getBlock();
+        Level level = block.getLevel();
+        for(ServerRP serverRp : this.serversRP){
+            if(level != serverRp.getLevel() || block.getX() > serverRp.getMaxPosX() || block.getZ() > serverRp.getMaxPosZ() || block.getX() < serverRp.getMinPosX() || block.getZ() < serverRp.getMinPosZ() || block.getY() < 0 || block.getY() > 250){
+                continue;
+            }
+            BlockUpdatePacket pk = new BlockUpdatePacket();
+            pk.id = RPBlocksUtils.traduceBlock(block);
+            pk.x = block.getX();
+            pk.y = block.getY();
+            pk.z = block.getZ();
+            serverRp.sendPacket(pk);
+        }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWeatherChange(WeatherChangeEvent event){
+        Level level = event.getLevel();
+        boolean weather = event.toWeatherState();
+        for(ServerRP serverRp : this.serversRP){
+            if(level != serverRp.getLevel()){
+                continue;
+            }
+            SetWeatherPacket pk = new SetWeatherPacket();
+            pk.weather = weather;
+        }
+    }
+    private class SetTimeTask extends Task{
+        @Override
+        public void onRun(int currentTik){
+            for(ServerRP serverRp : serversRP){
+                SetTimePacket pk = new SetTimePacket();
+                pk.time = serverRp.getLevel().getTime();
+                serverRp.sendPacket(pk);
+            }
         }
     }
 }

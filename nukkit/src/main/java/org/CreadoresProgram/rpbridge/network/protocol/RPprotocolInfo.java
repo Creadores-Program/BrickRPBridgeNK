@@ -22,4 +22,5 @@ public interface RPprotocolInfo{
     byte BOSSBAR = 0x17;
     byte TOAST = 0x18;
     byte SET_MAX_HEALTH = 0x19;
+    byte SET_WEATHER = 0x20;
 }

@@ -28,7 +28,7 @@ public class RPNetworkPlayerSession implements NetworkPlayerSession{
 
     @Override
     public void sendImmediatePacket(DataPacket packet, Runnable callback){
-        this.traducePacket(packet);
+        //this.traducePacket(packet);
         callback.run();
     }
     public void sendImmediatePacket(RPpacket packet, Runnable callback){

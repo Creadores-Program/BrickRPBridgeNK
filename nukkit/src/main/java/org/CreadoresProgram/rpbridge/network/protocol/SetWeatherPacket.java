@@ -4,18 +4,18 @@ import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 
-public class PingPacket extends RPpacket{
-    public static final byte NETWORK_ID = RPprotocolInfo.PING;
-    public long timeMilis;
+public class SetWeatherPacket extends RPpacket{
+    public static final byte NETWORK_ID = RPprotocolInfo.SET_WEATHER;
+    public boolean weather;
 
     public byte pid(){
         return NETWORK_ID;
     }
     public void decode() throws IOException {
-        this.timeMilis = this.getBuffer().readLong();
+        this.weather = this.getBuffer().readBoolean();
     }
     public void encode() throws IOException {
         this.reset();
-        this.getBuffer().writeLong(System.currentTimeMillis());
+        this.getBuffer().writeBoolean(this.weather);
     }
 }
