@@ -25,7 +25,7 @@ public class PlayerRP extends Player{
     protected Queue<Vector3> clientMovementsRP = new ArrayDeque<>();
     public static Skin defaulSkinR;
     public static Skin defaulSkinP;
-    public PlayerRP(SourceInterface interfaz, String rpId, ServerRP serverRp){
+    public PlayerRP(SourceInterface interfaz, String rpId, ServerRP serverRp, String name){
         super(interfaz, new Random().nextLong(), new InetSocketAddress(0));
         this.networkSessionRp = ((RPSourceInterface) interfaz).getSession(rpId);
         this.serverRp = serverRp;
@@ -35,6 +35,21 @@ public class PlayerRP extends Player{
         }else{
             this.skin = defaulSkinP;
         }
+        this.username = name;
+        this.displayName = name;
+        this.iusername = this.username.toLowerCase();
+        this.uuid = UUID.randomUUID();
+        this.rawUUID = Binary.writeUUID(this.uuid);
+        this.namedTag = new CompoundTag();
+        this.namedTag.putInt("playerGameType", this.gamemode);
+        this.namedTag.putLong("firstPlayed", System.currentTimeMillis());
+        this.namedTag.putLong("lastPlayed", System.currentTimeMillis());
+        this.initEntity();
+        this.connected = true;
+        this.completeLoginSequence();
+        this.loggedIn = true;
+        this.loginVerified = true;
+        this.doFirstSpawn();
     }
 
     public ServerRP getServerRP(){
