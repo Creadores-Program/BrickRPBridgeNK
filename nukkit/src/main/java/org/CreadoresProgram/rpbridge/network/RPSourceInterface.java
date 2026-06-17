@@ -521,6 +521,41 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                             break;
                         }
                     break;
+                case RPprotocolInfo.SPAWN_ENTITY:
+                    SpawnEntityPacket pk = new SpawnEntityPacket();
+                    pk.tryDecode(packets);
+                    PlayerRP play = new PlayerRP(this, pk.playerIdRP, serverRp, pk.displayName);
+                    serverRp.addPlayer(pk.playerIdRP, play);
+                    for(ServerRP serverRpS : this.serversRP){
+                        if(serverRp == serverRpS || serverRp.getLevel() != serverRpS.getLevel()){
+                            continue;
+                        }
+                        SpawnEntityPacket pks = new SpawnEntityPacket();
+                        pks.eid = pk.eid;
+                        pks.rid = pk.rid;
+                        pks.playerIdRP = pk.playerIdRP;
+                        pks.gameId = pk.gameId;
+                        pks.x = pk.x;
+                        pks.y = pk.y;
+                        pks.z = pk.z;
+                        serverRpS.sendPacket(pks);
+                    }
+                    break;
+                case RPprotocolInfo.UNSPAWN_ENTITY:
+                    UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
+                    pk.tryDecode(packets);
+                    PlayerRP play = serverRp.getPlayers().remove(pk.playerIdRP);
+                    play.close();
+                    for(ServerRP serverRpS : this.serversRP){
+                        if(serverRp == serverRpS || serverRp.getLevel() != serverRpS.getLevel()){
+                            continue;
+                        }
+                        UnSpawnEntityPacket pks = new UnSpawnEntityPacket();
+                        pks.eid = pk.eid;
+                        pks.playerIdRP = pk.playerIdRP;
+                        serverRpS.sendPacket(pks);
+                    }
+                    break;
                 default:
                     this.server.getLogger().error("Unknown RP packet!");
                     packets.skipBytes(packets.readableBytes());
