@@ -3,6 +3,7 @@ package org.CreadoresProgram.rpbridge;
 import cn.nukkit.plugin.PluginBase;
 
 import org.CreadoresProgram.rpbridge.network.RPSourceInterface;
+import org.CreadoresProgram.rpbridge.network.tunnel.TunnelManager;
 import org.CreadoresProgram.rpbridge.event.fastrespawn.FRListener;
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 
@@ -96,7 +97,7 @@ public class Main extends PluginBase{
         }
         if(this.getConfig().getBoolean("tunnel.enabled")){
             this.getLogger().info("§eLoading tunnel...");
-            //Tunnel manager
+            //new TunnelManager(this.getConfig().getInt("port"), this.getConfig().getString("tunnel.provider"), this.getConfig().getString("tunnel.username"), this.getConfig().getString("tunnel.password"), this.getConfig().getString("tunnel.subdomain"));
         }
         this.getLogger().info("§aDone!");
     }
