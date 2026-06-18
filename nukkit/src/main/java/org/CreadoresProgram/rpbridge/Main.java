@@ -9,6 +9,7 @@ import org.CreadoresProgram.rpbridge.data.PlayerRP;
 
 public class Main extends PluginBase{
     private static Main instance;
+    private TunnelManager tunnel;
     public static Main getInstance(){
         return instance;
     }
@@ -97,8 +98,16 @@ public class Main extends PluginBase{
         }
         if(this.getConfig().getBoolean("tunnel.enabled")){
             this.getLogger().info("§eLoading tunnel...");
-            //new TunnelManager(this.getConfig().getInt("port"), this.getConfig().getString("tunnel.provider"), this.getConfig().getString("tunnel.username"), this.getConfig().getString("tunnel.password"), this.getConfig().getString("tunnel.subdomain"));
+            this.tunnel = new TunnelManager(this.getConfig().getInt("port"), this.getConfig().getString("tunnel.provider"), this.getConfig().getString("tunnel.username"), this.getConfig().getString("tunnel.password"), this.getConfig().getString("tunnel.subdomain"));
         }
         this.getLogger().info("§aDone!");
+    }
+    @Override
+    public void onDisable(){
+        this.getLogger().info("§cBye!");
+        if(this.tunnel != null){
+            this.getLogger().info("§cStoping Tunnel...");
+            this.tunnel.stop();
+        }
     }
 }
