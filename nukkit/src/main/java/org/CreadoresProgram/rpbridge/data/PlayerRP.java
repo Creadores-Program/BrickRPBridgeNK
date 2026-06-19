@@ -5,10 +5,12 @@ import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.form.window.FormWindow;
-import cn.nukkit.form.response.FormResponseHandler;
+import cn.nukkit.form.handler.FormResponseHandler;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.DummyBossBar;
+import cn.nukkit.entity.data.Skin;
+import cn.nukkit.lang.TextContainer;
 
 import org.CreadoresProgram.rpbridge.network.ServerRP;
 import org.CreadoresProgram.rpbridge.network.RPSourceInterface;

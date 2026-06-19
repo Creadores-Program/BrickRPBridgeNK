@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 
-public abstract class RPpacket implements Clonable{
+public abstract class RPpacket implements Cloneable{
     private ByteBuf buffer;
     public volatile boolean isEncoded = false;
 

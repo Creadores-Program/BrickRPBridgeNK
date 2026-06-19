@@ -1,6 +1,7 @@
 package org.CreadoresProgram.rpbridge;
 
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.entity.data.Skin;
 
 import org.CreadoresProgram.rpbridge.network.RPSourceInterface;
 import org.CreadoresProgram.rpbridge.network.tunnel.TunnelManager;

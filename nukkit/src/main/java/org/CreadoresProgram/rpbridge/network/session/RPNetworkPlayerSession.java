@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 import org.CreadoresProgram.rpbridge.network.protocol.RPpacket;
-import org.CreadoresProgram.rpbridge.network.protocol.DisconnectPlayerPacket;
+import org.CreadoresProgram.rpbridge.network.protocol.KickPacket;
 import org.CreadoresProgram.rpbridge.network.ServerRP;
 
 import javax.crypto.Cipher;
@@ -38,7 +38,7 @@ public class RPNetworkPlayerSession implements NetworkPlayerSession{
 
     @Override
     public void disconnect(String reason){
-        DisconnectPlayerPacket pk = new DisconnectPlayerPacket();
+        KickPacket pk = new KickPacket();
         pk.playerId = this.player.getRpId();
         pk.reason = reason;
         this.sendPacket(pk);
