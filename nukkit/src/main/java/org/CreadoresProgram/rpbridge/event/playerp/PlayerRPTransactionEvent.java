@@ -14,7 +14,7 @@ public class PlayerRPTransactionEvent extends PlayerRPEvent{
 
     protected String transactionId;
     protected boolean accept;
-    public PlayerTransactionEvent(PlayerRP player, String transactionId, boolean accept){
+    public PlayerRPTransactionEvent(PlayerRP player, String transactionId, boolean accept){
         this.player = (Player) player;
         this.transactionId = transactionId;
         this.accept = accept;

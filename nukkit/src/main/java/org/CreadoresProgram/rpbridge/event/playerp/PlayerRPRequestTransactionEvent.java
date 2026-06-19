@@ -14,7 +14,7 @@ public class PlayerRPRequestTransactionEvent extends PlayerRPEvent implements Ca
     }
 
     protected String transactionId;
-    public PlayerTransactionEvent(PlayerRP player, String transactionId){
+    public PlayerRPRequestTransactionEvent(PlayerRP player, String transactionId){
         this.player = (Player) player;
         this.transactionId = transactionId;
     }
