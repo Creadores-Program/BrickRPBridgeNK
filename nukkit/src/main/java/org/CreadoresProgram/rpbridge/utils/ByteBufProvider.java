@@ -1,4 +1,4 @@
-package org.CreadoresProgram.rpridge.utils;
+package org.CreadoresProgram.rpbridge.utils;
 
 import io.netty.buffer.ByteBuf;
 
