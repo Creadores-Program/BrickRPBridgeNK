@@ -1,4 +1,4 @@
-package org.CreadoresProgram.rpbridge.event.rp;
+package org.CreadoresProgram.rpbridge.event.playerp;
 
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 
