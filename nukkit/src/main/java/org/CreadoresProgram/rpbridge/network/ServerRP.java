@@ -98,7 +98,7 @@ public class ServerRP{
                 this.dataPacks.add(packet.getBuffer());
             }
         }catch(Exception e){
-            Server.getIntance().getLogger().error("Failed encode RPpacket: ", e);
+            Server.getInstance().getLogger().error("Failed encode RPpacket: ", e);
         }
     }
     public void setPing(long ping){

@@ -8,6 +8,10 @@ import org.CreadoresProgram.rpbridge.network.tunnel.TunnelManager;
 import org.CreadoresProgram.rpbridge.event.fastrespawn.FRListener;
 import org.CreadoresProgram.rpbridge.data.PlayerRP;
 
+import java.io.*;
+import java.util.stream.Collectors;
+import java.util.Base64;
+
 public class Main extends PluginBase{
     private static Main instance;
     private TunnelManager tunnel;
