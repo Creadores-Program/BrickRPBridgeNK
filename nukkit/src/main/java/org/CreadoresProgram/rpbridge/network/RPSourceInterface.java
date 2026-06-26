@@ -113,7 +113,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
 
     @Override
     public Integer putPacket(Player player, DataPacket packet){
-        RPNetworkPlayerSession ps = player.getNetworkSession();
+        RPNetworkPlayerSession ps = (RPNetworkPlayerSession) player.getNetworkSession();
         if(ps != null){
             ps.sendPacket(packet);
         }
@@ -158,7 +158,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             return;
         }
         PlayerRP p = (PlayerRP) player;
-        RPNetworkPlayerSession ps = this.getSession(p.getRpId());
+        RPNetworkPlayerSession ps = (RPNetworkPlayerSession) this.getSession(p.getRpId());
         if(ps != null){
             ps.disconnect(reason);
         }
@@ -250,7 +250,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
     private void processDatapacks(ByteBuf packets, ServerRP serverRp) throws Exception{
         while(packets.readableBytes() > 0){
             switch(packets.readByte()){
-                case RPprotocolInfo.LOGIN_SERVER:
+                case RPprotocolInfo.LOGIN_SERVER: {
                     LoginServerPacket pk = new LoginServerPacket();
                     pk.tryDecode(packets);
                     if(!this.autenticateServerRP(pk)){
@@ -260,7 +260,8 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     servRp.setPingTask(new ServerRP.PingTask(servRp, this));
                     servRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(servRp.getPingTask(), timeout).getTaskId());
                     break;
-                case RPprotocolInfo.CHAT:
+                }
+                case RPprotocolInfo.CHAT: {
                     ChatPacket pk = new ChatPacket();
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
@@ -289,14 +290,15 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     }
                     this.server.dispatchCommand(playerCommandPreprocessEvent.getPlayer(), playerCommandPreprocessEvent.getMessage().substring(1));
                     break;
-                case RPprotocolInfo.MOVE:
+                }
+                case RPprotocolInfo.MOVE: {
                     MovePacket pk = new MovePacket();
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
                     if(play == null){
                         break;
                     }
-                    Vector3 clientPosition = new Vector3(pk.x, pk.y, pk.z).substract(0, play.riding == null ? play.getBaseOffset() : play.riding.getMountedOffset(play).getY(), 0).asVector3();
+                    Vector3 clientPosition = new Vector3(pk.x, pk.y, pk.z).substract(0.0, ((double) (play.riding == null ? play.getEyeHeight() : play.riding.getMountedOffset(play).getY())), 0.0).asVector3();
                     double distSqrt = clientPosition.distanceSquared(play);
                     if (distSqrt > 100) { // Notice: This is the distance to player's position on server side. There are likely still unhandled previous movements when next move packet is received.
                         play.sendPosition(play, pk.yaw, pk.pitch, MovePlayerPacket.MODE_RESET);
@@ -320,13 +322,15 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                         play.getClientMovements().offer(clientPosition);
                     }
                     break;
-                case RPprotocolInfo.FORM:
+                }
+                case RPprotocolInfo.FORM: {
                     FormPacket pk = new FormPacket();
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
                     play.processFormResponse(pk.id, pk.response);
                     break;
-                case RPprotocolInfo.PING:
+                }
+                case RPprotocolInfo.PING: {
                     PingPacket pk = new PingPacket();
                     pk.tryDecode(packets);
                     serverRp.setPing(System.currentTimeMillis() - pk.timeMilis);
@@ -335,7 +339,8 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     this.server.getScheduler().cancelTask(serverRp.getTimeOutTaskId());
                     serverRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(servRp.getPingTask(), timeout).getTaskId());
                     break;
-                case RPprotocolInfo.INTERACT:
+                }
+                case RPprotocolInfo.INTERACT: {
                     InteractPacket pk = new InteractPacket();
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().get(pk.playerIdRP);
@@ -524,7 +529,8 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                             break;
                         }
                     break;
-                case RPprotocolInfo.SPAWN_ENTITY:
+                }
+                case RPprotocolInfo.SPAWN_ENTITY: {
                     SpawnEntityPacket pk = new SpawnEntityPacket();
                     pk.tryDecode(packets);
                     PlayerRP play = new PlayerRP(this, pk.playerIdRP, serverRp, pk.displayName);
@@ -544,7 +550,8 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                         serverRpS.sendPacket(pks);
                     }
                     break;
-                case RPprotocolInfo.UNSPAWN_ENTITY:
+                }
+                case RPprotocolInfo.UNSPAWN_ENTITY: {
                     UnSpawnEntityPacket pk = new UnSpawnEntityPacket();
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().remove(pk.playerIdRP);
@@ -559,10 +566,12 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                         serverRpS.sendPacket(pks);
                     }
                     break;
-                default:
+                }
+                default: {
                     this.server.getLogger().error("Unknown RP packet!");
                     packets.skipBytes(packets.readableBytes());
                     break;
+                }
             }
         }
     }

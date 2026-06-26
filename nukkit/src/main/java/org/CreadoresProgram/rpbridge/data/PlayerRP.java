@@ -29,6 +29,7 @@ public class PlayerRP extends Player{
     protected Queue<Vector3> clientMovementsRP = new ArrayDeque<>();
     public static Skin defaulSkinR;
     public static Skin defaulSkinP;
+    private boolean formOpen = false;
     public PlayerRP(SourceInterface interfaz, String rpId, ServerRP serverRp, String name){
         super(interfaz, new Random().nextLong(), new InetSocketAddress(0));
         this.networkSessionRp = ((RPSourceInterface) interfaz).getSession(rpId);
@@ -52,7 +53,6 @@ public class PlayerRP extends Player{
         this.connected = true;
         this.completeLoginSequence();
         this.loggedIn = true;
-        this.loginVerified = true;
         this.doFirstSpawn();
     }
 

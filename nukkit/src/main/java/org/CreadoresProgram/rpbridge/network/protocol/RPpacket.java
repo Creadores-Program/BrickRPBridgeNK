@@ -27,9 +27,9 @@ public abstract class RPpacket implements Cloneable{
         this.buffer = null;
     }
 
-    public abstract byte pid(){}
-    public abstract void encode()throws IOException {}
-    public abstract void decode() throws IOException {}
+    public abstract byte pid();
+    public abstract void encode()throws IOException;
+    public abstract void decode() throws IOException;
 
     public void reset(){
         buffer.clear();
