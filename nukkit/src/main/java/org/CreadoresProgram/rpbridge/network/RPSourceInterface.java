@@ -81,7 +81,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
 
     public RPSourceInterface(int port, String password, Server server){
         this.password = password.getBytes(StandardCharsets.UTF_8);
-        this.sparkServer = Service.ignate();
+        this.sparkServer = Service.ignite();
         this.server = server;
         this.sparkServer.port(port);
         String serverRPprUrl = "/ServerRPprotocol";
@@ -214,7 +214,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
             }
             ServerRP serverRp = null;
             if(request.headers(serverIdPrefix) != null && this.serversRP.get(request.headers(serverIdPrefix)) != null){
-                serverRp = this.serverRp.get(request.headers(serverIdPrefix));
+                serverRp = this.serversRP.get(request.headers(serverIdPrefix));
             }
             try{
                 this.processDatapacks(packets, serverRp);

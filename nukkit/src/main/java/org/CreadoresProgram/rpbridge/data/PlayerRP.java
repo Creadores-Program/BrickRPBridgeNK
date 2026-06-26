@@ -12,7 +12,7 @@ import cn.nukkit.utils.DummyBossBar;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.lang.TextContainer;
-import cn.nukkit.nbt.tag.CompoundTag
+import cn.nukkit.nbt.tag.CompoundTag;
 
 import org.CreadoresProgram.rpbridge.network.ServerRP;
 import org.CreadoresProgram.rpbridge.network.RPSourceInterface;

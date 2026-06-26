@@ -37,8 +37,8 @@ public class ServerRP{
         this.level = level;
         this.maxPosX = (int) Math.round(level.getProvider().getSpawn().getX() + 149);
         this.maxPosZ = (int) Math.round(level.getProvider().getSpawn().getZ() + 149);
-        this.minPosX = (int) Math.round(level.getProvider(),getSpawn().getX() - 149);
-        this.minPosZ = (int) Math.round(level.getProvider(),getSpawn().getZ() - 149);
+        this.minPosX = (int) Math.round(level.getProvider().getSpawn().getX() - 149);
+        this.minPosZ = (int) Math.round(level.getProvider().getSpawn().getZ() - 149);
         this.gameId = gameId;
     }
     public boolean isRobloxServer(){

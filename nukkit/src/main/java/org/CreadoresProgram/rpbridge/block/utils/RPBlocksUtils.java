@@ -96,7 +96,6 @@ public class RPBlocksUtils {
             case BlockID.BLUE_GLAZED_TERRACOTTA:
             case BlockID.LAPIS_BLOCK:
             case BlockID.DIAMOND_BLOCK:
-            case BlockID.BLUE_ICE:
                 return RPBlocks.SOLID_BLUE;
 
             case BlockID.DIRT:
