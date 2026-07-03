@@ -8,6 +8,7 @@ import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.handler.FormResponseHandler;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.math.Vector2;
 import cn.nukkit.utils.DummyBossBar;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.entity.data.Skin;
@@ -90,6 +91,14 @@ public class PlayerRP extends Player{
     }
     public Vector3 getSleeping(){
         return this.sleeping;
+    }
+    public boolean canInteractEntity(Vector3 pos, double maxDistanceSquared) {
+        if (this.distanceSquared(pos) > maxDistanceSquared) {
+            return false;
+        }
+
+        Vector2 dV = this.getDirectionPlane();
+        return (dV.dot(new Vector2(pos.x, pos.z)) - dV.dot(new Vector2(this.x, this.z))) >= -0.87;
     }
 
     @Override

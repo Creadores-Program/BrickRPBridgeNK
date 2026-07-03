@@ -1,14 +1,10 @@
 package org.CreadoresProgram.rpbridge.network;
 
 import cn.nukkit.network.SourceInterface;
-import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.MovePlayerPacket;
-import cn.nukkit.network.protocol.LevelSoundEventPacket;
+import cn.nukkit.network.protocol.*;
 import cn.nukkit.network.session.NetworkPlayerSession;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.Sound;
-import cn.nukkit.level.Location;
-import cn.nukkit.level.particle.ItemBreakParticle;
+import cn.nukkit.level.*;
+import cn.nukkit.level.particle.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemMace;
 import cn.nukkit.item.enchantment.Enchantment;
@@ -45,9 +41,7 @@ import org.CreadoresProgram.rpbridge.block.utils.RPBlocksUtils;
 import org.CreadoresProgram.rpbridge.Main;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -298,7 +292,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     if(play == null){
                         break;
                     }
-                    Vector3 clientPosition = new Vector3(pk.x, pk.y, pk.z).substract(0.0, ((double) (play.riding == null ? play.getEyeHeight() : play.riding.getMountedOffset(play).getY())), 0.0).asVector3();
+                    Vector3 clientPosition = new Vector3(pk.x, pk.y, pk.z).subtract(0.0, ((double) (play.riding == null ? play.getEyeHeight() : play.riding.getMountedOffset(play).getY())), 0.0);
                     double distSqrt = clientPosition.distanceSquared(play);
                     if (distSqrt > 100) { // Notice: This is the distance to player's position on server side. There are likely still unhandled previous movements when next move packet is received.
                         play.sendPosition(play, pk.yaw, pk.pitch, MovePlayerPacket.MODE_RESET);
@@ -337,7 +331,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     PingPacket pkres = new PingPacket();
                     serverRp.sendPacket(pkres);
                     this.server.getScheduler().cancelTask(serverRp.getTimeOutTaskId());
-                    serverRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(servRp.getPingTask(), timeout).getTaskId());
+                    serverRp.setTimeOutTaskId(this.server.getScheduler().scheduleDelayedTask(serverRp.getPingTask(), timeout).getTaskId());
                     break;
                 }
                 case RPprotocolInfo.INTERACT: {
@@ -349,11 +343,11 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                         break;
                     }
                     Item item = play.getInventory().getItemInHand();
-                    Level level = ply.getLevel();
+                    Level level = play.getLevel();
                     switch(pk.type){
                         case InteractPacket.Type.INTERACT:
                             if (play.distanceSquared(target) > 256) { // TODO: Note entity scale
-                                server.getLogger().debug(play.getname() + ": target entity is too far away");
+                                server.getLogger().debug(play.getName() + ": target entity is too far away");
                                 break;
                             }
                             play.breakingBlock = null;
@@ -400,7 +394,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                             } else if (target instanceof Player) {
                                 if ((((Player) target).gamemode & 0x01) > 0) {
                                     break;
-                                } else if (!this.server.pvpEnabled) {
+                                } else if (!this.server.getPropertyBoolean("pvp", true)) {
                                     break;
                                 }
                             }
@@ -418,9 +412,9 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                                 break;
                             }*/
 
-                            play.setShieldBlockingDelay(5);
+                            //play.setShieldBlockingDelay(5);
 
-                            if (server.attackStopSprint) {
+                            if (server.getConfig("player.attack-stop-sprint", true)) {
                                 play.setSprinting(false);
                             }
 
@@ -479,9 +473,9 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                             }
 
                             if (!target.attack(entityDamageByEntityEvent)) {
-                                if (item.isTool() && !play.isCreative()) {
+                                /*if (item.isTool() && !play.isCreative()) {
                                     play.needSendHeldItem = true;
-                                }
+                                }*/
                                 break;
                             }
 
@@ -535,7 +529,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.tryDecode(packets);
                     PlayerRP play = new PlayerRP(this, pk.playerIdRP, serverRp, pk.displayName);
                     serverRp.addPlayer(pk.playerIdRP, play);
-                    for(ServerRP serverRpS : this.serversRP){
+                    for(ServerRP serverRpS : this.serversRP.getValues()){
                         if(serverRp == serverRpS || serverRp.getLevel() != serverRpS.getLevel()){
                             continue;
                         }
@@ -556,7 +550,7 @@ public class RPSourceInterface implements SourceInterface, Route, Listener {
                     pk.tryDecode(packets);
                     PlayerRP play = serverRp.getPlayers().remove(pk.playerIdRP);
                     play.close();
-                    for(ServerRP serverRpS : this.serversRP){
+                    for(ServerRP serverRpS : this.serversRP.getValues()){
                         if(serverRp == serverRpS || serverRp.getLevel() != serverRpS.getLevel()){
                             continue;
                         }
